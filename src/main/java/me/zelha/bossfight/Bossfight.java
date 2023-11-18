@@ -1,5 +1,6 @@
 package me.zelha.bossfight;
 
+import hm.zelha.particlesfx.util.ParticleSFX;
 import me.zelha.bossfight.listeners.GeneralListener;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -9,6 +10,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class Bossfight extends JavaPlugin {
     @Override
     public void onEnable() {
+        ParticleSFX.setPlugin(this);
         getServer().getPluginManager().registerEvents(new GeneralListener(), this);
 
         World world = new WorldCreator("zelha").type(WorldType.FLAT).generatorSettings("3;minecraft:air;9").generateStructures(false).createWorld();
