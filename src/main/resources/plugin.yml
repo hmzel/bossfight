@@ -1,0 +1,3 @@
+name: bossfight
+version: '${project.version}'
+main: me.zelha.bossfight.Bossfight
