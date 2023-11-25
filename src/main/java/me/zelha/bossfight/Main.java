@@ -1,13 +1,11 @@
 package me.zelha.bossfight;
 
 import hm.zelha.particlesfx.util.ParticleSFX;
-import hm.zelha.particlesfx.util.ParticleShapeCompound;
 import me.zelha.bossfight.listeners.GeneralListener;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public final class Main extends JavaPlugin {
     @Override
@@ -96,5 +94,7 @@ public final class Main extends JavaPlugin {
         for (Player player : getServer().getOnlinePlayers()) {
             Bukkit.getPluginManager().callEvent(new PlayerJoinEvent(player, null));
         }
+
+        new Bossfight().runTaskTimer(this, 0, 1);
     }
 }

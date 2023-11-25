@@ -9,6 +9,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 public class GeneralListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
-        e.getPlayer().teleport(new Location(Bukkit.getWorld("zelha"), 0.5, 27, 0.5));
+        e.getPlayer().teleport(new Location(Bukkit.getWorld("zelha"), 0.5, 27, -20.5));
     }
 }
