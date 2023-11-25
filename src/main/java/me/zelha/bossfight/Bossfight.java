@@ -7,6 +7,7 @@ import hm.zelha.particlesfx.shapers.ParticleSphere;
 import hm.zelha.particlesfx.util.LocationSafe;
 import hm.zelha.particlesfx.util.ParticleShapeCompound;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -67,9 +68,14 @@ public class Bossfight extends BukkitRunnable {
         sphere.setYRadius(sphere.getYRadius() - 1);
         sphere.setZRadius(sphere.getZRadius() - 1);
 
+        if (counter % 15 == 0 && counter <= 470) {
+            world.playSound(summoningCircle.getCenter(), Sound.ZOMBIE_UNFECT, 100, 0);
+        }
+
         if (counter == 500) {
             sphere.stop();
             summoningCircle.stop();
+            world.playSound(summoningCircle.getCenter(), Sound.WITHER_DEATH, 100, 0);
         }
     }
 }
