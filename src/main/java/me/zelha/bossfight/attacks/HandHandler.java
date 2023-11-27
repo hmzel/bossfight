@@ -1,4 +1,4 @@
-package me.zelha.bossfight;
+package me.zelha.bossfight.attacks;
 
 import hm.zelha.particlesfx.particles.ParticleNull;
 import hm.zelha.particlesfx.shapers.ParticleLine;
@@ -6,6 +6,7 @@ import hm.zelha.particlesfx.shapers.parents.Shape;
 import hm.zelha.particlesfx.util.LocationSafe;
 import hm.zelha.particlesfx.util.ParticleShapeCompound;
 import hm.zelha.particlesfx.util.ShapeDisplayMechanic;
+import me.zelha.bossfight.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -18,13 +19,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Hand {//this is just a prototype, ill probably rename the class and put it in a package and other junk later
+public class HandHandler {//this is just a prototype, ill probably rename the class and put it in a package and other junk later
 
     private final ParticleShapeCompound compound = new ParticleShapeCompound();
     private final Map<Shape, List<ArmorStand>> headMap = new HashMap<>();
     private final World world = Bukkit.getWorld("zelha");
 
-    public Hand() {
+    public HandHandler() {
         compound.addShape(new ParticleLine(new ParticleNull(), 5, new LocationSafe(world, 0, 34.85, 0.12), new LocationSafe(world, 0, 34.85, 2.25)));
         compound.addShape(new ParticleLine(new ParticleNull(), 5, new LocationSafe(world, 0.3, 35, 0), new LocationSafe(world, 0.3, 35, 2.5)));
         compound.addShape(new ParticleLine(new ParticleNull(), 5, new LocationSafe(world, 0.75, 35, 0), new LocationSafe(world, 0.75, 35, 2.5)));
