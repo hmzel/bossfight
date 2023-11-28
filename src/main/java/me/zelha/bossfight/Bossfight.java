@@ -7,6 +7,7 @@ import hm.zelha.particlesfx.shapers.ParticleSphere;
 import hm.zelha.particlesfx.util.LocationSafe;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
@@ -96,6 +97,15 @@ public class Bossfight extends BukkitRunnable {
 //            summoningCircle.stop();
 //            world.playSound(summoningCircle.getCenter(), Sound.WITHER_DEATH, 100, 0);
 //        }
+
+        for (Player p : world.getPlayers()) {
+            PlayerConnection pc = ((CraftPlayer) p).getHandle().playerConnection;
+            Location l = boss.getBukkitEntity().getLocation();
+
+            l.setDirection(p.getLocation().subtract(l).toVector());
+            pc.sendPacket(new PacketPlayOutEntityHeadRotation(boss, (byte) ((l.getYaw() % 360) * 256 / 360)));
+            pc.sendPacket(new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook(boss.getId(), (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) ((l.getPitch() % 360) * 256 / 360), true));
+        }
     }
 
     public static EntityPlayer getEntity() {
