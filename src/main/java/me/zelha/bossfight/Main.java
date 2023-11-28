@@ -2,7 +2,11 @@ package me.zelha.bossfight;
 
 import hm.zelha.particlesfx.util.ParticleSFX;
 import me.zelha.bossfight.listeners.GeneralListener;
+import net.minecraft.server.v1_8_R3.PacketPlayOutEntityDestroy;
+import net.minecraft.server.v1_8_R3.PacketPlayOutPlayerInfo;
+import net.minecraft.server.v1_8_R3.PlayerConnection;
 import org.bukkit.*;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -96,5 +100,17 @@ public final class Main extends JavaPlugin {
         }
 
         new Bossfight().runTaskTimer(this, 0, 1);
+    }
+
+    @Override
+    public void onDisable() {
+        if (Bossfight.getEntity() != null) {
+            for (Player p : Bukkit.getWorld("zelha").getPlayers()) {
+                PlayerConnection pc = ((CraftPlayer) p).getHandle().playerConnection;
+
+                pc.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, Bossfight.getEntity()));
+                pc.sendPacket(new PacketPlayOutEntityDestroy(Bossfight.getEntity().getId()));
+            }
+        }
     }
 }
