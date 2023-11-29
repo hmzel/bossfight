@@ -12,8 +12,13 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Main extends JavaPlugin {
+
+    private static Main instance;
+
     @Override
     public void onEnable() {
+        instance = this;
+
         ParticleSFX.setPlugin(this);
         getServer().getPluginManager().registerEvents(new GeneralListener(), this);
 
@@ -112,5 +117,9 @@ public final class Main extends JavaPlugin {
                 pc.sendPacket(new PacketPlayOutEntityDestroy(Bossfight.getEntity().getId()));
             }
         }
+    }
+
+    public static Main getInstance() {
+        return instance;
     }
 }
