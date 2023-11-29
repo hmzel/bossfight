@@ -30,6 +30,7 @@ public class Bossfight extends BukkitRunnable {
     private final ParticleImage summoningCircle = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 27.2, 0.5), new File("plugins/summoningcircle.png"), 5, 5, 1000);
     private final ParticleSphere sphere = (ParticleSphere) new ParticleSphere(new ParticleExplosion(10D), new LocationSafe(world, 0.5, 28, 0.5), 500, 500, 500, 4).setLimit(25).setLimitInverse(true).stop();
     private boolean started = false;
+    private boolean wingFlapping = true;
     private int counter = 0;
 
     public Bossfight() {
@@ -121,6 +122,22 @@ public class Bossfight extends BukkitRunnable {
                 l.setDirection(p.getLocation().subtract(l).toVector());
                 pc.sendPacket(new PacketPlayOutEntityHeadRotation(boss, (byte) ((l.getYaw() % 360) * 256 / 360)));
                 pc.sendPacket(new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook(boss.getId(), (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) ((l.getPitch() % 360) * 256 / 360), true));
+            }
+
+            if ((counter - 500) % 80 == 0) wingFlapping = !wingFlapping;
+
+            if (wingFlapping) {
+                wings.move(0, -0.035, 0.015);
+
+                for (int i = 0; i <= 1; i++) {
+                    wings.getShape(i).rotate(0.5, 0, 0.5 + -i);
+                }
+            } else {
+                wings.move(0, 0.035, -0.015);
+
+                for (int i = 0; i <= 1; i++) {
+                    wings.getShape(i).rotate(-0.5, 0, -0.5 + i);
+                }
             }
         }
     }
