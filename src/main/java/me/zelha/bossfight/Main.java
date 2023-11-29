@@ -7,6 +7,7 @@ import net.minecraft.server.v1_8_R3.PacketPlayOutPlayerInfo;
 import net.minecraft.server.v1_8_R3.PlayerConnection;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -116,6 +117,12 @@ public final class Main extends JavaPlugin {
                 pc.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, Bossfight.getEntity()));
                 pc.sendPacket(new PacketPlayOutEntityDestroy(Bossfight.getEntity().getId()));
             }
+        }
+
+        for (Entity e : Bukkit.getWorld("zelha").getEntities()) {
+            if (e.getMetadata("bossfight-entity").isEmpty()) continue;
+
+            e.remove();
         }
     }
 
