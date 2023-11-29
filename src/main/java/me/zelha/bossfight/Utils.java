@@ -18,6 +18,7 @@ public class Utils {
         World world = Bukkit.getWorld("zelha");
         Block block = new Location(world, 0, 13, 0).getBlock();
 
+        block.setType(Material.AIR);
         block.setType(Material.SKULL);
 
         TileEntitySkull tileSkull = (TileEntitySkull) ((CraftWorld) world).getTileEntityAt(0, 13, 0);
