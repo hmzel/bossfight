@@ -1,6 +1,7 @@
 package me.zelha.bossfight;
 
 import hm.zelha.particlesfx.util.ParticleSFX;
+import me.zelha.bossfight.listeners.AirJumpListener;
 import me.zelha.bossfight.listeners.GeneralListener;
 import net.minecraft.server.v1_8_R3.PacketPlayOutEntityDestroy;
 import net.minecraft.server.v1_8_R3.PacketPlayOutPlayerInfo;
@@ -22,6 +23,7 @@ public final class Main extends JavaPlugin {
 
         ParticleSFX.setPlugin(this);
         getServer().getPluginManager().registerEvents(new GeneralListener(), this);
+        getServer().getPluginManager().registerEvents(new AirJumpListener(), this);
 
         World world = new WorldCreator("zelha").type(WorldType.FLAT).generatorSettings("3;minecraft:air;9").generateStructures(false).createWorld();
 
