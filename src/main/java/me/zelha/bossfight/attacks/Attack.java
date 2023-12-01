@@ -8,23 +8,47 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-public abstract class Attack extends BukkitRunnable {
+public abstract class Attack {
 
     protected final World world = Bukkit.getWorld("zelha");
+    protected final boolean allowMultiple;
+    protected int counter = 0;
 
-    public void attack(int ticks) {
-        runTaskTimer(Main.getInstance(), 0, 1);
+    protected Attack(boolean allowMultiple) {
+        this.allowMultiple = allowMultiple;
+    }
 
-        new BukkitRunnable() {
+    public BukkitTask run(int ticks) {
+        if (!allowMultiple && counter != 0) {
+            Attacks.randomAttack(ticks);
+
+            return null;
+        }
+
+        return new BukkitRunnable() {
             @Override
             public void run() {
-                Attack.this.cancel();
+                attack();
+
+                counter++;
+
+                if (counter == ticks) {
+                    cancel();
+                    reset();
+                }
             }
-        }.runTaskLater(Main.getInstance(), ticks);
+        }.runTaskTimer(Main.getInstance(), 0, 1);
+    }
+
+    protected abstract void attack();
+
+    protected void reset() {
+        counter = 0;
     }
 
     protected void damageNearby(Location l, double distance, double damage, @Nullable Entity source) {
