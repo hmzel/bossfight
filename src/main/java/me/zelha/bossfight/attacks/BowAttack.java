@@ -60,6 +60,12 @@ public class BowAttack extends Attack {
 
                 @Override
                 public void run() {
+                    if (target == null) {
+                        cancel();
+
+                        return;
+                    }
+
                     if (arrow == null) {
                         arrow = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 43, -36.5), new File("plugins/arrow.png"), 5, 200).setRadius(3);
 
