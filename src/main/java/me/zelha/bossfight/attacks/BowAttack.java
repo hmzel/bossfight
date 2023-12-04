@@ -18,7 +18,6 @@ import java.io.File;
 public class BowAttack extends Attack {
 
     private final ParticleImage bow = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 43, -36.5), new File("plugins/bow.gif"), 5, 750).setRadius(3);
-    private int running = 0;
     private int frame = 0;
 
     protected BowAttack() {
@@ -34,8 +33,6 @@ public class BowAttack extends Attack {
     public BukkitTask run(int ticks) {
         Main.getBossfight().getEye().stop();
         bow.start();
-
-        running++;
 
         return super.run(ticks);
     }
@@ -133,10 +130,6 @@ public class BowAttack extends Attack {
 
     @Override
     protected void reset() {
-        running--;
-
-        if (running != 0) return;
-
         Main.getBossfight().getEye().start();
         bow.stop();
         super.reset();

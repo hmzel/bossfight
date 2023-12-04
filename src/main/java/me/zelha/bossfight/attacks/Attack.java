@@ -18,6 +18,7 @@ public abstract class Attack {
     protected final World world = Bukkit.getWorld("zelha");
     protected final boolean allowMultiple;
     protected int counter = 0;
+    private int running = 0;
 
     protected Attack(boolean allowMultiple) {
         this.allowMultiple = allowMultiple;
@@ -30,6 +31,8 @@ public abstract class Attack {
             return null;
         }
 
+        running++;
+
         return new BukkitRunnable() {
             @Override
             public void run() {
@@ -39,6 +42,11 @@ public abstract class Attack {
 
                 if (counter == ticks) {
                     cancel();
+
+                    running--;
+
+                    if (running != 0) return;
+
                     reset();
                 }
             }
