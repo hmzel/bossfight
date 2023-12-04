@@ -29,12 +29,12 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Bossfight extends BukkitRunnable {
 
-    private static EntityPlayer boss = null;
     private final World world = Bukkit.getWorld("zelha");
     private final ParticleShapeCompound watcher = new ParticleShapeCompound();
     private final ParticleShapeCompound wings = new ParticleShapeCompound();
     private final ParticleImage summoningCircle = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 27.2, 0.5), new File("plugins/summoningcircle.png"), 5, 5, 1000);
     private final ParticleSphere forcefield = (ParticleSphere) new ParticleSphere(new ParticleExplosion(10D), new LocationSafe(world, 0.5, 28, 0.5), 500, 500, 500, 4).setLimit(25).setLimitInverse(true).stop();
+    private final EntityPlayer boss;
     private boolean started = false;
     private boolean wingFlapping = true;
     private int counter = 0;
@@ -211,6 +211,8 @@ public class Bossfight extends BukkitRunnable {
     }
 
     public static void sendBossCreationPackets(Player player) {
+        EntityPlayer boss = Main.getBossfight().getEntity();
+
         if (boss == null) return;
 
         ScoreboardTeam team = new ScoreboardTeam(MinecraftServer.getServer().getWorld().getScoreboard(), "boss");
@@ -224,7 +226,7 @@ public class Bossfight extends BukkitRunnable {
         pc.sendPacket(new PacketPlayOutScoreboardTeam(team, Collections.singletonList(boss.getName()), 3));
     }
 
-    public static EntityPlayer getEntity() {
+    public EntityPlayer getEntity() {
         return boss;
     }
 }

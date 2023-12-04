@@ -1,9 +1,11 @@
 package me.zelha.bossfight;
 
 import hm.zelha.particlesfx.util.ParticleSFX;
+import me.zelha.bossfight.attacks.Attacks;
 import me.zelha.bossfight.listeners.AirJumpListener;
 import me.zelha.bossfight.listeners.DashListener;
 import me.zelha.bossfight.listeners.GeneralListener;
+import net.minecraft.server.v1_8_R3.EntityPlayer;
 import net.minecraft.server.v1_8_R3.PacketPlayOutEntityDestroy;
 import net.minecraft.server.v1_8_R3.PacketPlayOutPlayerInfo;
 import net.minecraft.server.v1_8_R3.PlayerConnection;
@@ -17,6 +19,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class Main extends JavaPlugin {
 
     private static Main instance;
+    private static Bossfight bossfight;
 
     @Override
     public void onEnable() {
@@ -105,21 +108,25 @@ public final class Main extends JavaPlugin {
             }
         }
 
+        bossfight = new Bossfight();
+
+        bossfight.runTaskTimer(this, 0, 1);
+
         for (Player player : getServer().getOnlinePlayers()) {
             Bukkit.getPluginManager().callEvent(new PlayerJoinEvent(player, null));
         }
-
-        new Bossfight().runTaskTimer(this, 0, 1);
     }
 
     @Override
     public void onDisable() {
-        if (Bossfight.getEntity() != null) {
+        EntityPlayer boss = getBossfight().getEntity();
+
+        if (boss != null) {
             for (Player p : Bukkit.getWorld("zelha").getPlayers()) {
                 PlayerConnection pc = ((CraftPlayer) p).getHandle().playerConnection;
 
-                pc.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, Bossfight.getEntity()));
-                pc.sendPacket(new PacketPlayOutEntityDestroy(Bossfight.getEntity().getId()));
+                pc.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, boss));
+                pc.sendPacket(new PacketPlayOutEntityDestroy(boss.getId()));
             }
         }
 
@@ -132,5 +139,9 @@ public final class Main extends JavaPlugin {
 
     public static Main getInstance() {
         return instance;
+    }
+
+    public static Bossfight getBossfight() {
+        return bossfight;
     }
 }

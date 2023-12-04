@@ -54,7 +54,7 @@ public abstract class Attack {
     protected void damageNearby(Location l, double distance, double damage, @Nullable Entity source) {
         List<Player> players = world.getPlayers();
 
-        players.add(Bossfight.getEntity().getBukkitEntity());
+        players.add(Main.getBossfight().getEntity().getBukkitEntity());
 
         for (Player p : players) {
             if (l.distanceSquared(p.getLocation()) > Math.pow(distance, 2)) continue;
