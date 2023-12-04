@@ -25,7 +25,7 @@ public abstract class Attack {
     }
 
     public BukkitTask run(int ticks) {
-        if (!allowMultiple && counter != 0) {
+        if (!allowMultiple && running > 0) {
             Attacks.randomAttack(ticks);
 
             return null;
@@ -34,10 +34,14 @@ public abstract class Attack {
         running++;
 
         return new BukkitRunnable() {
+
+            private int counter = 0;
+
             @Override
             public void run() {
                 attack();
 
+                Attack.this.counter++;
                 counter++;
 
                 if (counter == ticks) {
