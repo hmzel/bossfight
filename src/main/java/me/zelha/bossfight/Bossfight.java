@@ -2,7 +2,10 @@ package me.zelha.bossfight;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import hm.zelha.particlesfx.particles.*;
+import hm.zelha.particlesfx.particles.ParticleDustColored;
+import hm.zelha.particlesfx.particles.ParticleExplosion;
+import hm.zelha.particlesfx.particles.ParticleNull;
+import hm.zelha.particlesfx.particles.ParticleSwirlTransparent;
 import hm.zelha.particlesfx.particles.parents.Particle;
 import hm.zelha.particlesfx.shapers.ParticleImage;
 import hm.zelha.particlesfx.shapers.ParticleSphere;
@@ -228,6 +231,10 @@ public class Bossfight extends BukkitRunnable {
 
     public EntityPlayer getEntity() {
         return boss;
+    }
+
+    public ParticleImage getEye() {
+        return (ParticleImage) watcher.getShape(1);
     }
 }
 

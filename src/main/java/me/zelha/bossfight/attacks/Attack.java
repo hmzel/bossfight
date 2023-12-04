@@ -1,6 +1,5 @@
 package me.zelha.bossfight.attacks;
 
-import me.zelha.bossfight.Bossfight;
 import me.zelha.bossfight.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -12,6 +11,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class Attack {
 
@@ -61,5 +61,13 @@ public abstract class Attack {
 
             p.damage(damage, source);
         }
+    }
+
+    protected Player getTarget() {
+        List<Player> players = world.getPlayers();
+
+        if (players.isEmpty()) return null;
+
+        return players.get(ThreadLocalRandom.current().nextInt(players.size()));
     }
 }

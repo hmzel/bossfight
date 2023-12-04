@@ -3,7 +3,7 @@ package me.zelha.bossfight.attacks;
 import java.util.concurrent.ThreadLocalRandom;
 
 public enum Attacks {
-    ;
+    BOW(new BowAttack());
 
     private Attack attack;
 
@@ -13,5 +13,9 @@ public enum Attacks {
 
     public static void randomAttack(int ticks) {
         values()[ThreadLocalRandom.current().nextInt(values().length)].attack.run(ticks);
+    }
+
+    public Attack getMethods() {
+        return attack;
     }
 }
