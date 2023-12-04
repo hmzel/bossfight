@@ -8,6 +8,7 @@ import hm.zelha.particlesfx.util.Rotation;
 import me.zelha.bossfight.Main;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -53,6 +54,7 @@ public class BowAttack extends Attack {
                 private final Vector vec = new Vector();
                 private final Player target = getTarget();
                 private ParticleImage arrow = null;
+                private boolean inGround = false;
                 private int counter = 0;
 
                 @Override
@@ -68,6 +70,7 @@ public class BowAttack extends Attack {
 
                         arrow.setAxisRotation(0, 135, 90);
                         arrow.setRotation(-145, 0, 0);
+                        world.playSound(arrow.getCenter(), Sound.SHOOT_ARROW, 100, 0.75f);
                     }
 
                     counter++;
@@ -80,7 +83,15 @@ public class BowAttack extends Attack {
                     rot.set(arrow.getPitch(), arrow.getYaw(), arrow.getRoll());
                     rot.apply(vec.zero().setY(-3));
 
-                    if (world.getBlockAt(loc.zero().add(arrow.getCenter()).add(vec)).getType() != Material.AIR) return;
+                    if (world.getBlockAt(loc.zero().add(arrow.getCenter()).add(vec)).getType() != Material.AIR) {
+                        if (!inGround) {
+                            world.playSound(arrow.getCenter(), Sound.ARROW_HIT, 100, 0.75f);
+
+                            inGround = true;
+                        }
+
+                        return;
+                    }
 
                     double[] direction = ParticleSFX.getDirection(target.getLocation(loc), arrow.getCenter());
                     double pitchInc, yawInc;
@@ -120,7 +131,7 @@ public class BowAttack extends Attack {
 
                     arrow.rotate(pitchInc, yawInc, 0);
                     arrow.move(rot.apply(vec.zero().setY(-1.5)));
-                    damageNearby(loc.zero().add(arrow.getCenter()).add(rot.apply(vec.zero().setY(-3))), 0.75, 1, null);
+                    damageNearby(loc.zero().add(arrow.getCenter()).add(rot.apply(vec.zero().setY(-3))), 0.75, 5, null);
                 }
             }.runTaskTimer(Main.getInstance(), 0, 1);
         }
