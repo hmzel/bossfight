@@ -8,6 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerKickEvent;
 
 public class GeneralListener implements Listener {
     @EventHandler
@@ -21,5 +22,12 @@ public class GeneralListener implements Listener {
     @EventHandler
     public void onHunger(FoodLevelChangeEvent e) {
         e.setFoodLevel(20);
+    }
+
+    @EventHandler
+    public void onKick(PlayerKickEvent e) {
+        if (e.getPlayer().getWorld().getName().equals("zelha") && e.getReason().equals("Flying is not enabled on this server")) {
+            e.setCancelled(true);
+        }
     }
 }
