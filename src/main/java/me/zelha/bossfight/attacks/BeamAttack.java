@@ -6,6 +6,8 @@ import hm.zelha.particlesfx.particles.parents.TravellingParticle;
 import hm.zelha.particlesfx.shapers.ParticleImage;
 import hm.zelha.particlesfx.shapers.ParticleLine;
 import hm.zelha.particlesfx.util.LocationSafe;
+import hm.zelha.particlesfx.util.ParticleSFX;
+import hm.zelha.particlesfx.util.Rotation;
 import hm.zelha.particlesfx.util.ShapeDisplayMechanic;
 import me.zelha.bossfight.Main;
 import org.bukkit.Location;
@@ -23,7 +25,23 @@ public class BeamAttack extends Attack {
     protected BeamAttack() {
         super(true);
 
-        beam.addMechanic(ShapeDisplayMechanic.Phase.AFTER_DISPLAY, ((particle, current, addition, count) -> damageNearby(current, 1, 5, null)));
+        Location center = new Location(world, 0.5, 27, 0.5);
+        Location target = new Location(world, 0, 0, 0);
+        Rotation rot = new Rotation();
+        Vector vec = new Vector();
+
+        beam.addMechanic(ShapeDisplayMechanic.Phase.AFTER_DISPLAY, ((particle, current, addition, count) -> {
+            damageNearby(current, 1, 5, null);
+
+            for (Player p : world.getPlayers()) {
+                if (current.distanceSquared(p.getLocation()) > 1) continue;
+
+                vec.zero().setY(2);
+                rot.set(ThreadLocalRandom.current().nextDouble(40, 80), ParticleSFX.getDirection(p.getLocation(target), center)[1], 0);
+                p.setVelocity(rot.apply(vec).normalize().multiply(2));
+            }
+        }));
+
         beam.stop();
     }
 
