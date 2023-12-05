@@ -3,8 +3,10 @@ package me.zelha.bossfight.attacks;
 import me.zelha.bossfight.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -64,15 +66,18 @@ public abstract class Attack {
     }
 
     protected void damageNearby(Location l, double distance, double damage, @Nullable Entity source) {
-        List<Player> players = world.getPlayers();
+        LivingEntity boss = Main.getBossfight().getEntity().getBukkitEntity();
 
-        players.add(Main.getBossfight().getEntity().getBukkitEntity());
-
-        for (Player p : players) {
+        for (Player p : world.getPlayers()) {
             if (l.distanceSquared(p.getLocation()) > Math.pow(distance, 2)) continue;
 
             p.damage(damage, source);
         }
+
+        if (l.distanceSquared(boss.getLocation()) > Math.pow(distance, 2)) return;
+
+        boss.setHealth(boss.getHealth() - damage);
+        world.playSound(l, Sound.WITHER_IDLE, 3, 2);
     }
 
     protected Player getTarget() {
