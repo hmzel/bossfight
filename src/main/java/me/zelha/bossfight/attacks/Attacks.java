@@ -3,9 +3,10 @@ package me.zelha.bossfight.attacks;
 import java.util.concurrent.ThreadLocalRandom;
 
 public enum Attacks {
-    BOW(new BowAttack());
+    BOW(new BowAttack()),
+    BEAM(new BeamAttack());
 
-    private Attack attack;
+    private final Attack attack;
 
     Attacks(Attack attack) {
         this.attack = attack;
