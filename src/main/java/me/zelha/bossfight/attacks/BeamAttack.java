@@ -11,6 +11,7 @@ import hm.zelha.particlesfx.util.Rotation;
 import hm.zelha.particlesfx.util.ShapeDisplayMechanic;
 import me.zelha.bossfight.Main;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -93,6 +94,7 @@ public class BeamAttack extends Attack {
                     beamParticle.setCount(500);
                     beamParticle.display(loc);
                     beamParticle.setCount(5);
+                    world.playSound(loc, Sound.FIREWORK_LARGE_BLAST, 0.5f, 0.75f);
                 }
 
                 if (counter > 30) {
