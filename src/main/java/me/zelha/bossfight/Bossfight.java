@@ -6,6 +6,7 @@ import hm.zelha.particlesfx.particles.ParticleDustColored;
 import hm.zelha.particlesfx.particles.ParticleExplosion;
 import hm.zelha.particlesfx.particles.ParticleNull;
 import hm.zelha.particlesfx.particles.ParticleSwirlTransparent;
+import hm.zelha.particlesfx.particles.parents.ColorableParticle;
 import hm.zelha.particlesfx.particles.parents.Particle;
 import hm.zelha.particlesfx.shapers.ParticleImage;
 import hm.zelha.particlesfx.shapers.ParticleSphere;
@@ -64,6 +65,18 @@ public class Bossfight extends BukkitRunnable {
         for (int i = 0; i <= 1; i++) {
             wings.getShape(i).setAxisRotation(-90, (180 * i), 10 + (-20 * i));
         }
+
+        ShapeDisplayMechanic damageMechanic = ((particle, current, addition, count) -> {
+            if (lastHit + 500 < System.currentTimeMillis()) return;
+
+            ColorableParticle p = ((ColorableParticle) particle);
+
+            p.getColor().setBlue(0);
+            p.getColor().setGreen(0);
+        });
+
+        watcher.getShape(1).addMechanic(ShapeDisplayMechanic.Phase.AFTER_ROTATION, damageMechanic);
+        wings.addMechanic(ShapeDisplayMechanic.Phase.AFTER_ROTATION, damageMechanic);
 
         watcher.addMechanic(ShapeDisplayMechanic.Phase.AFTER_ROTATION, ((particle, current, addition, count) -> {
             for (Player p : world.getPlayers()) {
@@ -179,7 +192,7 @@ public class Bossfight extends BukkitRunnable {
             }.runTaskTimer(Main.getInstance(), 0, 1);
         }
 
-        if (counter == 505) {
+        if (counter == 510) {
             for (Player p : world.getPlayers()) {
                 ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, boss));
             }
@@ -227,6 +240,19 @@ public class Bossfight extends BukkitRunnable {
         pc.sendPacket(new PacketPlayOutEntityMetadata(boss.getId(), boss.getDataWatcher(), true));
         pc.sendPacket(new PacketPlayOutScoreboardTeam(team, 0));
         pc.sendPacket(new PacketPlayOutScoreboardTeam(team, Collections.singletonList(boss.getName()), 3));
+    }
+
+    public void handleDamage(double damage) {
+        if (lastHit + 500 > System.currentTimeMillis()) return;
+
+        for (Player p : world.getPlayers()) {
+            ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityStatus(boss, (byte) 2));
+        }
+
+        boss.getBukkitEntity().setHealth(boss.getBukkitEntity().getHealth() - damage);
+        world.playSound(boss.getBukkitEntity().getLocation(), Sound.WITHER_IDLE, 5, 2);
+
+        lastHit = System.currentTimeMillis();
     }
 
     public EntityPlayer getEntity() {
