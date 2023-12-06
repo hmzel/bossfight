@@ -1,10 +1,12 @@
 package me.zelha.bossfight.attacks;
 
 import me.zelha.bossfight.Main;
+import net.minecraft.server.v1_8_R3.Entity;
+import net.minecraft.server.v1_8_R3.EntitySilverfish;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.Entity;
+import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -16,6 +18,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public abstract class Attack {
 
     protected final World world = Bukkit.getWorld("zelha");
+    protected final Entity damageEntity = new EntitySilverfish(((CraftWorld) world).getHandle());
     protected final boolean allowMultiple;
     protected int counter = 0;
     private int running = 0;
@@ -63,11 +66,17 @@ public abstract class Attack {
         counter = 0;
     }
 
-    protected void damageNearby(Location l, double distance, double damage, @Nullable Entity source) {
+    protected void damageNearby(Location l, double distance, double damage, @Nullable Location damageLocation) {
         for (Player p : world.getPlayers()) {
             if (l.distanceSquared(p.getLocation()) > Math.pow(distance, 2)) continue;
 
-            p.damage(damage, source);
+            if (damageLocation != null) {
+                damageEntity.setPosition(damageLocation.getX(), damageLocation.getY(), damageLocation.getZ());
+            } else {
+                damageEntity.setPosition(l.getX(), l.getY(), l.getZ());
+            }
+
+            p.damage(damage, damageEntity.getBukkitEntity());
         }
 
         if (l.distanceSquared(Main.getBossfight().getEntity().getBukkitEntity().getLocation()) > Math.pow(distance, 2)) return;

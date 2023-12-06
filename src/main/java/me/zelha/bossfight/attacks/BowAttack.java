@@ -131,7 +131,7 @@ public class BowAttack extends Attack {
 
                     arrow.rotate(pitchInc, yawInc, 0);
                     arrow.move(rot.apply(vec.zero().setY(-1.5)));
-                    damageNearby(loc.zero().add(arrow.getCenter()).add(rot.apply(vec.zero().setY(-3))), 0.75, 5, null);
+                    damageNearby(loc.zero().add(arrow.getCenter()).add(rot.apply(vec.zero().setY(-3))), 0.75, 5, arrow.getCenter());
                 }
             }.runTaskTimer(Main.getInstance(), 0, 1);
         }
