@@ -49,7 +49,7 @@ public class ParryListener implements Listener {
             Vector a = start.clone().subtract(center);
             Vector b = end.clone().subtract(center);
             Vector c = start.clone().subtract(end);
-            double r = p.getLocation().getPitch();
+            double r = l.getPitch();
             boolean inCircle = false;
 
             if (start.distance(center) > r + 3) continue;
