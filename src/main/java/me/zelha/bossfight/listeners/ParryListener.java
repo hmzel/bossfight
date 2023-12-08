@@ -4,6 +4,7 @@ import me.zelha.bossfight.Main;
 import net.minecraft.server.v1_8_R3.IChatBaseComponent;
 import net.minecraft.server.v1_8_R3.PacketPlayOutChat;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -24,6 +25,7 @@ public class ParryListener implements Listener {
     @EventHandler
     public void onInteract(PlayerInteractEvent e) {
         Player p = e.getPlayer();
+        boolean hasParried = false;
 
         if (cooldownMap.containsKey(p.getUniqueId()) && cooldownMap.get(p.getUniqueId()) + 3000 > System.currentTimeMillis()) {
             String text = "{\"text\":\"Parrying is on cooldown for " + (cooldownMap.get(p.getUniqueId()) + 3000 - System.currentTimeMillis()) / 1000D + "s\"}";
@@ -58,11 +60,18 @@ public class ParryListener implements Listener {
             if (!inCircle) continue;
 
             parryMap.put(l, p);
+            p.getWorld().playSound(l, Sound.ANVIL_LAND, 1, 0.7f);
+
+            hasParried = true;
 
             break;
         }
 
         cooldownMap.put(p.getUniqueId(), System.currentTimeMillis());
+
+        if (!hasParried) {
+            p.getWorld().playSound(p.getLocation(), Sound.ENDERDRAGON_WINGS, 1, 1.5f);
+        }
 
         new BukkitRunnable() {
             @Override
