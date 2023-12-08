@@ -8,8 +8,8 @@ import hm.zelha.particlesfx.shapers.ParticleLine;
 import hm.zelha.particlesfx.util.LocationSafe;
 import hm.zelha.particlesfx.util.ParticleSFX;
 import hm.zelha.particlesfx.util.Rotation;
-import hm.zelha.particlesfx.util.ShapeDisplayMechanic;
 import me.zelha.bossfight.Main;
+import me.zelha.bossfight.listeners.ParryListener;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -26,23 +26,6 @@ public class BeamAttack extends Attack {
     protected BeamAttack() {
         super(true);
 
-        Location center = new Location(world, 0.5, 27, 0.5);
-        Location target = new Location(world, 0, 0, 0);
-        Rotation rot = new Rotation();
-        Vector vec = new Vector();
-
-        beam.addMechanic(ShapeDisplayMechanic.Phase.AFTER_DISPLAY, ((particle, current, addition, count) -> {
-            damageNearby(current, 1, 5, null);
-
-            for (Player p : world.getPlayers()) {
-                if (current.distanceSquared(p.getLocation()) > 1) continue;
-
-                vec.zero().setY(2);
-                rot.set(ThreadLocalRandom.current().nextDouble(40, 80), ParticleSFX.getDirection(p.getLocation(target), center)[1], 0);
-                p.setVelocity(rot.apply(vec).normalize().multiply(2));
-            }
-        }));
-
         beam.stop();
     }
 
@@ -52,10 +35,15 @@ public class BeamAttack extends Attack {
 
         new BukkitRunnable() {
 
+            private final TravellingParticle beamParticle = ((TravellingParticle) beam.getParticle());
             private final ThreadLocalRandom rng = ThreadLocalRandom.current();
+            private final Location center = new Location(world, 0.5, 27, 0.5);
             private final Location loc = new Location(world, 0, 0, 0);
+            private final Rotation rot = new Rotation();
+            private final Vector vec = new Vector();
             private final Player target = getTarget();
             private ParticleImage magicCircle = null;
+            private boolean hasParried = false;
             private int counter = 0;
 
             @Override
@@ -83,18 +71,40 @@ public class BeamAttack extends Attack {
                     magicCircle.scale(1.35);
                 }
 
-                if (counter == 25) {
-                    TravellingParticle beamParticle = ((TravellingParticle) beam.getParticle());
-
+                if (counter == 20) {
                     beam.getLocation(0).zero().add(magicCircle.getCenter());
                     beam.getLocation(1).zero().add(loc);
+                    ParryListener.listenForParry(this, loc, 5);
                     beamParticle.setVelocity(new Vector());
                     beam.display();
+                }
+
+                if (!hasParried && ParryListener.getParryPlayer(this) != null) {
+                    Location l = ParryListener.getParryPlayer(this).getLocation();
+                    hasParried = true;
+
+                    beam.getLocation(0).zero().add(loc);
+                    loc.add(l.getDirection().multiply(loc.distance(Main.getBossfight().getEntity().getBukkitEntity().getLocation())));
+                    beam.getLocation(1).zero().add(loc);
+                    beam.display();
+                }
+
+                if (counter == 25) {
                     beamParticle.setVelocity(null);
                     beamParticle.setCount(500);
                     beamParticle.display(loc);
                     beamParticle.setCount(5);
                     world.playSound(loc, Sound.FIREWORK_LARGE_BLAST, 0.5f, 0.75f);
+                    damageNearby(loc, 1.5, 5, null);
+                    ParryListener.stopParryListening(this);
+
+                    for (Player p : world.getPlayers()) {
+                        if (loc.distanceSquared(p.getLocation()) > 2.25) continue;
+
+                        vec.zero().setY(2);
+                        rot.set(rng.nextDouble(40, 80), ParticleSFX.getDirection(p.getLocation(), center)[1], 0);
+                        p.setVelocity(rot.apply(vec));
+                    }
                 }
 
                 if (counter > 30) {
