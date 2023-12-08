@@ -1,7 +1,10 @@
 package me.zelha.bossfight.listeners;
 
 import me.zelha.bossfight.Main;
+import net.minecraft.server.v1_8_R3.IChatBaseComponent;
+import net.minecraft.server.v1_8_R3.PacketPlayOutChat;
 import org.bukkit.Location;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -22,7 +25,13 @@ public class ParryListener implements Listener {
     public void onInteract(PlayerInteractEvent e) {
         Player p = e.getPlayer();
 
-        if (cooldownMap.containsKey(p.getUniqueId()) && cooldownMap.get(p.getUniqueId()) + 3000 > System.currentTimeMillis()) return;
+        if (cooldownMap.containsKey(p.getUniqueId()) && cooldownMap.get(p.getUniqueId()) + 3000 > System.currentTimeMillis()) {
+            String text = "{\"text\":\"Parrying is on cooldown for " + (cooldownMap.get(p.getUniqueId()) + 3000 - System.currentTimeMillis()) / 1000D + "s\"}";
+
+            ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutChat(IChatBaseComponent.ChatSerializer.a(text), (byte) 2));
+
+            return;
+        }
 
         for (Location l : parryMap.keySet()) {
             Vector start = p.getLocation().add(0, 1.625, 0).toVector();
