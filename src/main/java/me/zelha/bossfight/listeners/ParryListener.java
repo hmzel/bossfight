@@ -1,8 +1,10 @@
 package me.zelha.bossfight.listeners;
 
+import hm.zelha.particlesfx.util.LocationSafe;
 import me.zelha.bossfight.Main;
 import net.minecraft.server.v1_8_R3.IChatBaseComponent;
 import net.minecraft.server.v1_8_R3.PacketPlayOutChat;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
@@ -20,7 +22,7 @@ import java.util.UUID;
 
 public class ParryListener implements Listener {
 
-    private static final Map<Location, Player> parryMap = new HashMap<>();
+    private static final Map<BukkitRunnable, Pair<Location, Player>> parryMap = new HashMap<>();
     private final Map<UUID, Long> cooldownMap = new HashMap<>();
 
     @EventHandler
@@ -39,7 +41,8 @@ public class ParryListener implements Listener {
             return;
         }
 
-        for (Location l : parryMap.keySet()) {
+        for (BukkitRunnable runnable : parryMap.keySet()) {
+            Location l = parryMap.get(runnable).getKey();
             Vector start = p.getLocation().add(0, 1.625, 0).toVector();
             Vector end = start.clone().add(p.getLocation().getDirection().multiply(3));
             Vector center = l.toVector();
@@ -63,7 +66,7 @@ public class ParryListener implements Listener {
 
             if (!inCircle) continue;
 
-            parryMap.put(l, p);
+            parryMap.put(runnable, Pair.of(l, p));
             p.getWorld().playSound(l, Sound.ANVIL_LAND, 1, 0.7f);
 
             hasParried = true;
@@ -85,18 +88,20 @@ public class ParryListener implements Listener {
         }.runTaskLater(Main.getInstance(), 60);
     }
 
-    public static Player getParryPlayer(Location l) {
-        return parryMap.get(l);
+    public static Player getParryPlayer(BukkitRunnable runnable) {
+        if (parryMap.get(runnable) == null) return null;
+
+        return parryMap.get(runnable).getValue();
     }
 
-    public static void listenForParry(Location location, double radius) {
+    public static void listenForParry(BukkitRunnable runnable, LocationSafe location, double radius) {
         location.setPitch((float) radius);
 
-        parryMap.put(location, null);
+        parryMap.put(runnable, Pair.of(location, null));
     }
 
-    public static void stopParryListening(Location l) {
-        parryMap.remove(l);
+    public static void stopParryListening(BukkitRunnable runnable) {
+        parryMap.remove(runnable);
     }
 }
 
