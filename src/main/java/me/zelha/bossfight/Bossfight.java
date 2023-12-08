@@ -93,17 +93,19 @@ public class Bossfight extends BukkitRunnable {
         forcefield.addMechanic(ShapeDisplayMechanic.Phase.AFTER_DISPLAY, ((particle, current, addition, count) -> {
             boolean display = false;
 
-            for (Entity e : world.getEntities()) {
-                Location l = e.getLocation();
+            try {
+                for (Entity e : world.getEntities()) {
+                    Location l = e.getLocation();
 
-                if (l.distanceSquared(current) > 20) continue;
+                    if (l.distanceSquared(current) > 20) continue;
 
-                display = true;
+                    display = true;
 
-                if (l.distanceSquared(forcefield.getCenter()) > 16) continue;
+                    if (l.distanceSquared(forcefield.getCenter()) > 16) continue;
 
-                e.setVelocity(l.subtract(forcefield.getCenter()).toVector().multiply(0.25));
-            }
+                    e.setVelocity(l.subtract(forcefield.getCenter()).toVector().multiply(0.25));
+                }
+            } catch (ConcurrentModificationException ignored) {}
 
             if (display) {
                 forcefieldParticle.display(current);
