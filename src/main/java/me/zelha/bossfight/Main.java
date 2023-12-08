@@ -5,6 +5,7 @@ import me.zelha.bossfight.attacks.Attacks;
 import me.zelha.bossfight.listeners.AirJumpListener;
 import me.zelha.bossfight.listeners.DashListener;
 import me.zelha.bossfight.listeners.GeneralListener;
+import me.zelha.bossfight.listeners.ParryListener;
 import net.minecraft.server.v1_8_R3.EntityPlayer;
 import net.minecraft.server.v1_8_R3.PacketPlayOutEntityDestroy;
 import net.minecraft.server.v1_8_R3.PacketPlayOutPlayerInfo;
@@ -29,6 +30,7 @@ public final class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new GeneralListener(), this);
         getServer().getPluginManager().registerEvents(new AirJumpListener(), this);
         getServer().getPluginManager().registerEvents(new DashListener(), this);
+        getServer().getPluginManager().registerEvents(new ParryListener(), this);
 
         World world = new WorldCreator("zelha").type(WorldType.FLAT).generatorSettings("3;minecraft:air;9").generateStructures(false).createWorld();
 
@@ -36,6 +38,7 @@ public final class Main extends JavaPlugin {
         if (world.getTime() != 18013) {
             world.setGameRuleValue("doMobSpawning", "false");
             world.setGameRuleValue("doDaylightCycle", "false");
+            world.setGameRuleValue("keepInventory", "true");
             world.setTime(18013);
 
             //the .5 helps smooth out the circle
