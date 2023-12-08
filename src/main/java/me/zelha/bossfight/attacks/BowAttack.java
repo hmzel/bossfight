@@ -6,6 +6,7 @@ import hm.zelha.particlesfx.util.LocationSafe;
 import hm.zelha.particlesfx.util.ParticleSFX;
 import hm.zelha.particlesfx.util.Rotation;
 import me.zelha.bossfight.Main;
+import me.zelha.bossfight.listeners.ParryListener;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -54,7 +55,9 @@ public class BowAttack extends Attack {
                 private final Vector vec = new Vector();
                 private final Player target = getTarget();
                 private ParticleImage arrow = null;
+                private boolean beenParried = false;
                 private boolean inGround = false;
+                private double damageRadius = 0.75;
                 private int counter = 0;
 
                 @Override
@@ -71,11 +74,13 @@ public class BowAttack extends Attack {
                         arrow.setAxisRotation(0, 135, 90);
                         arrow.setRotation(-145, 0, 0);
                         world.playSound(arrow.getCenter(), Sound.SHOOT_ARROW, 100, 0.75f);
+                        ParryListener.listenForParry(this, loc, 1.5);
                     }
 
                     counter++;
 
                     if (counter == 160) {
+                        ParryListener.stopParryListening(this);
                         arrow.stop();
                         cancel();
                     }
@@ -86,6 +91,7 @@ public class BowAttack extends Attack {
                     if (world.getBlockAt(loc.zero().add(arrow.getCenter()).add(vec)).getType() != Material.AIR) {
                         if (!inGround) {
                             world.playSound(arrow.getCenter(), Sound.ARROW_HIT, 100, 0.75f);
+                            ParryListener.stopParryListening(this);
 
                             inGround = true;
                         }
@@ -93,7 +99,23 @@ public class BowAttack extends Attack {
                         return;
                     }
 
-                    double[] direction = ParticleSFX.getDirection(target.getLocation(loc), arrow.getCenter());
+                    if (!beenParried && ParryListener.getParryPlayer(this) != null) {
+                        Location l = ParryListener.getParryPlayer(this).getLocation().add(0, 1.625, 0);
+                        Location forward = l.clone().add(l.getDirection().multiply(3));
+                        double[] direction = ParticleSFX.getDirection(forward, l);
+
+                        arrow.setRotation(direction[0], direction[1], 0);
+
+                        damageRadius = 1.5;
+                        beenParried = true;
+                    }
+
+                    arrow.move(rot.apply(vec.zero().setY(-1.5)));
+                    damageNearby(loc.zero().add(arrow.getCenter()).add(rot.apply(vec.zero().setY(-3))), damageRadius, 5, arrow.getCenter());
+
+                    if (beenParried) return;
+
+                    double[] direction = ParticleSFX.getDirection(target.getLocation(), arrow.getCenter());
                     double pitchInc, yawInc;
                     double pitch = arrow.getPitch();
                     double yaw = arrow.getYaw();
@@ -130,8 +152,6 @@ public class BowAttack extends Attack {
                     }
 
                     arrow.rotate(pitchInc, yawInc, 0);
-                    arrow.move(rot.apply(vec.zero().setY(-1.5)));
-                    damageNearby(loc.zero().add(arrow.getCenter()).add(rot.apply(vec.zero().setY(-3))), 0.75, 5, arrow.getCenter());
                 }
             }.runTaskTimer(Main.getInstance(), 0, 1);
         }
