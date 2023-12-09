@@ -20,6 +20,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.HashSet;
+
 public class GeneralListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
@@ -63,6 +65,7 @@ public class GeneralListener implements Listener {
     public void onEntityDamage(EntityDamageByEntityEvent e) {
         if (!e.getEntity().getWorld().getName().equals("zelha")) return;
         if (!(e.getDamager() instanceof Player)) return;
+        if (((Player) e.getDamager()).getTargetBlock((HashSet<Material>) null, 3).getType() == Material.AIR) return;
 
         Bukkit.getServer().getPluginManager().callEvent(new PlayerInteractEvent((Player) e.getDamager(), Action.LEFT_CLICK_AIR, ((Player) e.getDamager()).getItemInHand(), null, null));
     }
