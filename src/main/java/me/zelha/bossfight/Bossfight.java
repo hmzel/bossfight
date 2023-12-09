@@ -28,6 +28,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -41,6 +42,7 @@ public class Bossfight extends BukkitRunnable {
     private final EntityPlayer boss;
     private boolean started = false;
     private boolean wingFlapping = true;
+    private long lastHit = 0;
     private int counter = 0;
 
     public Bossfight() {
