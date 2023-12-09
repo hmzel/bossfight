@@ -8,9 +8,12 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -45,9 +48,23 @@ public class GeneralListener implements Listener {
 
     @EventHandler
     public void onDamage(EntityDamageEvent e) {
+        if (!e.getEntity().getWorld().getName().equals("zelha")) return;
+
         if (e.getCause() == EntityDamageEvent.DamageCause.FALL) {
             e.setCancelled(true);
         }
+
+        if (!(e.getEntity() instanceof Player)) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onEntityDamage(EntityDamageByEntityEvent e) {
+        if (!e.getEntity().getWorld().getName().equals("zelha")) return;
+        if (!(e.getDamager() instanceof Player)) return;
+
+        Bukkit.getServer().getPluginManager().callEvent(new PlayerInteractEvent((Player) e.getDamager(), Action.LEFT_CLICK_AIR, ((Player) e.getDamager()).getItemInHand(), null, null));
     }
 
     @EventHandler
