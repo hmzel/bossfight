@@ -13,6 +13,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
@@ -80,6 +81,13 @@ public class GeneralListener implements Listener {
     @EventHandler
     public void onHunger(FoodLevelChangeEvent e) {
         e.setFoodLevel(20);
+    }
+
+    @EventHandler
+    public void onArmorStand(PlayerArmorStandManipulateEvent e) {
+        if (!e.getPlayer().getWorld().getName().equals("zelha")) return;
+
+        e.setCancelled(true);
     }
 
     @EventHandler
