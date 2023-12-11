@@ -5,7 +5,8 @@ import java.util.concurrent.ThreadLocalRandom;
 public enum Attacks {
     BOW(new BowAttack()),
     BEAM(new BeamAttack()),
-    PUPPET(new PuppetAttack());
+    PUPPET(new PuppetAttack()),
+    HAND(new HandAttack());
 
     private final Attack attack;
 
