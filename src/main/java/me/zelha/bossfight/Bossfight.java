@@ -196,12 +196,6 @@ public class Bossfight extends BukkitRunnable {
             }.runTaskTimer(Main.getInstance(), 0, 1);
         }
 
-        if (counter == 510) {
-            for (Player p : world.getPlayers()) {
-                ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, boss));
-            }
-        }
-
         if (counter > 500) {
             for (Player p : world.getPlayers()) {
                 PlayerConnection pc = ((CraftPlayer) p).getHandle().playerConnection;
@@ -244,6 +238,13 @@ public class Bossfight extends BukkitRunnable {
         pc.sendPacket(new PacketPlayOutEntityMetadata(boss.getId(), boss.getDataWatcher(), true));
         pc.sendPacket(new PacketPlayOutScoreboardTeam(team, 0));
         pc.sendPacket(new PacketPlayOutScoreboardTeam(team, Collections.singletonList(boss.getName()), 3));
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                pc.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, boss));
+            }
+        }.runTaskLater(Main.getInstance(), 20);
     }
 
     public void handleDamage(double damage) {
