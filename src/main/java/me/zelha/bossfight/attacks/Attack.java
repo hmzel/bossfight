@@ -60,6 +60,10 @@ public abstract class Attack {
         }.runTaskTimer(Main.getInstance(), 0, 1);
     }
 
+    public boolean isRunning() {
+        return running != 0;
+    }
+
     protected abstract void attack();
 
     protected void reset() {
