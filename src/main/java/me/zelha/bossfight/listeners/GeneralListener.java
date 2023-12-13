@@ -4,7 +4,6 @@ import me.zelha.bossfight.Bossfight;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -28,12 +27,9 @@ public class GeneralListener implements Listener {
     public void onJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
         PlayerInventory inv = p.getInventory();
-        ItemStack bow = new ItemStack(Material.BOW);
 
         inv.clear();
-        bow.addEnchantment(Enchantment.ARROW_INFINITE, 1);
-        inv.addItem(new ItemStack(Material.DIAMOND_SWORD), bow);
-        inv.setItem(17, new ItemStack(Material.ARROW));
+        inv.addItem(new ItemStack(Material.DIAMOND_SWORD));
         inv.setHelmet(new ItemStack(Material.IRON_HELMET));
         inv.setChestplate(new ItemStack(Material.IRON_CHESTPLATE));
         inv.setLeggings(new ItemStack(Material.IRON_LEGGINGS));

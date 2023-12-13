@@ -4,10 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import hm.zelha.particlesfx.particles.ParticleDustColored;
 import hm.zelha.particlesfx.particles.ParticleExplosion;
-import hm.zelha.particlesfx.particles.ParticleNull;
-import hm.zelha.particlesfx.particles.ParticleSwirlTransparent;
 import hm.zelha.particlesfx.particles.parents.ColorableParticle;
-import hm.zelha.particlesfx.particles.parents.Particle;
 import hm.zelha.particlesfx.shapers.ParticleImage;
 import hm.zelha.particlesfx.shapers.ParticleSphere;
 import hm.zelha.particlesfx.util.*;
@@ -19,7 +16,6 @@ import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftWither;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Wither;
@@ -28,7 +24,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.util.Collections;
-import java.util.ConcurrentModificationException;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -38,7 +33,7 @@ public class Bossfight extends BukkitRunnable {
     private final ParticleShapeCompound watcher = new ParticleShapeCompound();
     private final ParticleShapeCompound wings = new ParticleShapeCompound();
     private final ParticleImage summoningCircle = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 27.2, 0.5), new File("plugins/summoningcircle.png"), 5, 5, 1000);
-    private final ParticleSphere forcefield = (ParticleSphere) new ParticleSphere(new ParticleExplosion(10D), new LocationSafe(world, 0.5, 28, 0.5), 500, 500, 500, 4).setLimit(25).setLimitInverse(true).stop();
+    private final ParticleSphere sphere = (ParticleSphere) new ParticleSphere(new ParticleExplosion(10D), new LocationSafe(world, 0.5, 28, 0.5), 500, 500, 500, 4).setLimit(25).setLimitInverse(true).stop();
     private final EntityPlayer boss;
     private boolean started = false;
     private boolean wingFlapping = true;
@@ -46,7 +41,6 @@ public class Bossfight extends BukkitRunnable {
     private int counter = 0;
 
     public Bossfight() {
-        Particle forcefieldParticle = new ParticleSwirlTransparent(new Color(50, 0, 0));
         Rotation rot = new Rotation();
         boss = new EntityPlayer(MinecraftServer.getServer(), ((CraftWorld) world).getHandle(), new GameProfile(UUID.randomUUID(), ""), new PlayerInteractManager(((CraftWorld) world).getHandle()));
 
@@ -91,28 +85,6 @@ public class Bossfight extends BukkitRunnable {
                 current.subtract(addition);
             }
         }));
-
-        forcefield.addMechanic(ShapeDisplayMechanic.Phase.AFTER_DISPLAY, ((particle, current, addition, count) -> {
-            boolean display = false;
-
-            try {
-                for (Entity e : world.getEntities()) {
-                    Location l = e.getLocation();
-
-                    if (l.distanceSquared(current) > 20) continue;
-
-                    display = true;
-
-                    if (l.distanceSquared(forcefield.getCenter()) > 16) continue;
-
-                    e.setVelocity(l.subtract(forcefield.getCenter()).toVector().multiply(0.25));
-                }
-            } catch (ConcurrentModificationException ignored) {}
-
-            if (display) {
-                forcefieldParticle.display(current);
-            }
-        }));
     }
 
     @Override
@@ -121,7 +93,7 @@ public class Bossfight extends BukkitRunnable {
             started = true;
 
             summoningCircle.setParticleFrequency(2000);
-            forcefield.start();
+            sphere.start();
             watcher.stop();
         }
 
@@ -133,11 +105,11 @@ public class Bossfight extends BukkitRunnable {
             summoningCircle.rotate(0, (counter / 10D), 0);
             summoningCircle.setXRadius(summoningCircle.getXRadius() + 0.04);
             summoningCircle.setZRadius(summoningCircle.getZRadius() + 0.04);
-            forcefield.setParticleFrequency(forcefield.getParticleFrequency() + 4);
-            forcefield.rotate(0, (counter / 10D), 0);
-            forcefield.setXRadius(forcefield.getXRadius() - 1);
-            forcefield.setYRadius(forcefield.getYRadius() - 1);
-            forcefield.setZRadius(forcefield.getZRadius() - 1);
+            sphere.setParticleFrequency(sphere.getParticleFrequency() + 4);
+            sphere.rotate(0, (counter / 10D), 0);
+            sphere.setXRadius(sphere.getXRadius() - 1);
+            sphere.setYRadius(sphere.getYRadius() - 1);
+            sphere.setZRadius(sphere.getZRadius() - 1);
         }
 
         if (counter % 15 == 0 && counter <= 470) {
@@ -162,14 +134,8 @@ public class Bossfight extends BukkitRunnable {
             tag.setInt("Silent", 1);
             nmsWither.f(tag);
             wings.start();
+            sphere.stop();
             summoningCircle.stop();
-            forcefield.setLimit(0);
-            forcefield.setXRadius(4);
-            forcefield.setYRadius(4);
-            forcefield.setZRadius(4);
-            forcefield.setParticleFrequency(2500);
-            forcefield.setParticle(new ParticleNull());
-            forcefield.setCenter(new LocationSafe(boss.getBukkitEntity().getLocation()));
             world.playSound(summoningCircle.getCenter(), Sound.WITHER_DEATH, 100, 0);
             ((ParticleImage) watcher.getShape(1)).setRadius(5).move(0, 10, -37);
             watcher.getShape(1).start();
