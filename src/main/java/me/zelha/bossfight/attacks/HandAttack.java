@@ -66,7 +66,7 @@ public class HandAttack extends Attack {
                 stand.setVisible(false);
                 stand.setBasePlate(false);
                 stand.setMetadata("bossfight-entity", new FixedMetadataValue(Main.getInstance(), true));
-                stand.setHelmet(Utils.getCustomSkull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHBzOi8vZWR1Y2F0aW9uLm1pbmVjcmFmdC5uZXQvd3AtY29udGVudC91cGxvYWRzL2N1c3RvbWhlYWR2aWJyYW50LnBuZyJ9fX0="));
+                stand.setHelmet(Utils.getCustomSkull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHBzOi8vZWR1Y2F0aW9uLm1pbmVjcmFmdC5uZXQvd3AtY29udGVudC91cGxvYWRzL25vdGUucG5nIn19fQ=="));
                 headMap.get(shape).add(stand);
             }
 
