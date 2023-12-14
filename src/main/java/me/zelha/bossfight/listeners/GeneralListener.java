@@ -9,6 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
@@ -76,15 +77,24 @@ public class GeneralListener implements Listener {
     }
 
     @EventHandler
+    public void onFallingBlock(EntityChangeBlockEvent e) {
+        if (e.getBlock().getWorld().getName().equals("zelha")) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
     public void onHunger(FoodLevelChangeEvent e) {
-        e.setFoodLevel(20);
+        if (e.getEntity().getWorld().getName().equals("zelha")) {
+            e.setFoodLevel(20);
+        }
     }
 
     @EventHandler
     public void onArmorStand(PlayerArmorStandManipulateEvent e) {
-        if (!e.getPlayer().getWorld().getName().equals("zelha")) return;
-
-        e.setCancelled(true);
+        if (e.getPlayer().getWorld().getName().equals("zelha")) {
+            e.setCancelled(true);
+        }
     }
 
     @EventHandler
@@ -96,8 +106,8 @@ public class GeneralListener implements Listener {
 
     @EventHandler
     public void onWeather(WeatherChangeEvent e) {
-        if (!e.getWorld().getName().equals("zelha")) return;
-
-        e.setCancelled(true);
+        if (e.getWorld().getName().equals("zelha")) {
+            e.setCancelled(true);
+        }
     }
 }
