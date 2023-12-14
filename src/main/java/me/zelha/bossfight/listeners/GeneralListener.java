@@ -16,6 +16,7 @@ import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -91,5 +92,12 @@ public class GeneralListener implements Listener {
         if (e.getPlayer().getWorld().getName().equals("zelha") && e.getReason().equals("Flying is not enabled on this server")) {
             e.setCancelled(true);
         }
+    }
+
+    @EventHandler
+    public void onWeather(WeatherChangeEvent e) {
+        if (!e.getWorld().getName().equals("zelha")) return;
+
+        e.setCancelled(true);
     }
 }
