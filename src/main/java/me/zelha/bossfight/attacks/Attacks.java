@@ -6,7 +6,8 @@ public enum Attacks {
     BOW(new BowAttack()),
     BEAM(new BeamAttack()),
     PUPPET(new PuppetAttack()),
-    HAND(new HandAttack());
+    HAND(new HandAttack()),
+    SPECIAL(new SpecialAttack());
 
     private final Attack attack;
 
@@ -15,7 +16,15 @@ public enum Attacks {
     }
 
     public static void randomAttack(int ticks) {
-        values()[ThreadLocalRandom.current().nextInt(values().length)].attack.run(ticks);
+        Attacks attack = values()[ThreadLocalRandom.current().nextInt(values().length)];
+
+        if (attack == SPECIAL) {
+            randomAttack(ticks);
+
+            return;
+        }
+
+        attack.getMethods().run(ticks);
     }
 
     public Attack getMethods() {
