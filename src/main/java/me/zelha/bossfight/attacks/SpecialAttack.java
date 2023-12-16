@@ -46,6 +46,7 @@ public class SpecialAttack extends Attack {
     private final Rotation rot = new Rotation();
     private final Vector vec = new Vector();
     private BukkitTask attackTask = null;
+    private boolean deactivating = false;
     private boolean activating = false;
 
     protected SpecialAttack() {
@@ -153,11 +154,11 @@ public class SpecialAttack extends Attack {
             magicCircle.start();
         }
 
-        if (counter >= 200 && !activating) {
-            magicCircleParticle.setSize(magicCircleParticle.getSize() + 0.00455);
-            magicCircle.setXRadius(magicCircle.getXRadius() + 0.138);
-            magicCircle.setZRadius(magicCircle.getZRadius() + 0.138);
-            magicCircle.rotate(0, 1, 0);
+        if (counter >= 200 && !activating && !deactivating) {
+            magicCircleParticle.setSize(magicCircleParticle.getSize() + 0.00455 * (cubes.size() / 8D));
+            magicCircle.setXRadius(magicCircle.getXRadius() + 0.138 * (cubes.size() / 8D));
+            magicCircle.setZRadius(magicCircle.getZRadius() + 0.138 * (cubes.size() / 8D));
+            magicCircle.rotate(0, cubes.size() / 8D, 0);
             centerBeam.getShape(0).rotate(5, 5, 1);
             loc.zero().add(0.5, 0, 0.5);
             rot.set(0, 0.5, 0);
@@ -200,14 +201,28 @@ public class SpecialAttack extends Attack {
             structureBlocksList.clear();
         }
 
-        if (activating) {
+        if (cubes.isEmpty()) {
+            deactivating = true;
+
+            centerBeam.stop();
+            structureBlocksList.clear();
+        }
+
+        if (activating || deactivating) {
             magicCircle.scale(0.99);
             magicCircle.rotate(0, (magicCircle.getXRadius() - 500) / 10, 0);
-            magicCircle.getCenter().subtract(0, 0.75, 0);
 
-            if (magicCircle.getCenter().getY() <= 30) {
-                for (Player p : world.getPlayers()) {
-                    p.damage(9999);
+            if (activating) {
+                magicCircle.getCenter().subtract(0, 0.75, 0);
+            } else {
+                magicCircle.scale(0.95);
+            }
+
+            if (magicCircle.getXRadius() <= 1 || (activating && magicCircle.getXRadius() <= 50)) {
+                if (activating) {
+                    for (Player p : world.getPlayers()) {
+                        p.damage(9999);
+                    }
                 }
 
                 attackTask.cancel();
@@ -217,6 +232,7 @@ public class SpecialAttack extends Attack {
                 magicCircle.setZRadius(1);
                 magicCircleParticle.setSize(1D);
 
+                deactivating = false;
                 activating = false;
                 counter = 0;
             }
