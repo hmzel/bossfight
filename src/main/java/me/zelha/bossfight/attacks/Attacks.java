@@ -30,4 +30,8 @@ public enum Attacks {
     public Attack getMethods() {
         return attack;
     }
+
+    public static SpecialAttack getSpecialAttack() {
+        return (SpecialAttack) SPECIAL.getMethods();
+    }
 }

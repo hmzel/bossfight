@@ -83,6 +83,8 @@ public abstract class Attack {
             p.damage(damage, damageEntity.getBukkitEntity());
         }
 
+        Attacks.getSpecialAttack().handleCubeDamage(l, distance);
+
         if (l.distanceSquared(Main.getBossfight().getEntity().getBukkitEntity().getLocation().add(0, 1, 0)) > Math.pow(distance, 2)) return;
 
         Main.getBossfight().handleDamage(damage);

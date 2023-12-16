@@ -3,10 +3,12 @@ package me.zelha.bossfight.attacks;
 import hm.zelha.particlesfx.particles.ParticleBlockBreak;
 import hm.zelha.particlesfx.particles.ParticleDustColored;
 import hm.zelha.particlesfx.particles.ParticleExplosion;
+import hm.zelha.particlesfx.particles.ParticleNull;
 import hm.zelha.particlesfx.shapers.ParticleImage;
 import hm.zelha.particlesfx.shapers.ParticleLine;
 import hm.zelha.particlesfx.shapers.ParticlePolygon;
 import hm.zelha.particlesfx.shapers.ParticleSphere;
+import hm.zelha.particlesfx.shapers.parents.ParticleShaper;
 import hm.zelha.particlesfx.util.*;
 import me.zelha.bossfight.Main;
 import net.minecraft.server.v1_8_R3.*;
@@ -16,6 +18,7 @@ import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.material.MaterialData;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -28,6 +31,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 public class SpecialAttack extends Attack {
@@ -81,16 +85,25 @@ public class SpecialAttack extends Attack {
     @Override
     protected void attack() {
         if (counter % 20 == 0 && counter <= 140) {
+            ParticlePolygon cubeFilled = ParticleSFX.cubeFilled(new ParticleNull(), new LocationSafe(world, 0.5, 0.5, 0.5), 0.5, 100);
+            ParticlePolygon cube = ParticleSFX.cube(new ParticleNull(), new LocationSafe(world, 0.5, 0.5, 0.5), 1.5, 100);
+
+            cubes.add(new ParticleShapeCompound(cubeFilled, cube));
             rot.set(0, 45D * (counter / 20), 0);
-            rot.apply(vec.zero().setZ(-35));
+            rot.apply(vec.setX(0).setY(30).setZ(-35));
             vec.setX((int) vec.getX()).setY((int) vec.getY()).setZ((int) vec.getZ());
+            cubes.get(counter / 20).move(vec);
+
+            for (int k = 0; k < 8; k++) {
+                cube.getCorner(k).connect(cubeFilled.getCorner(k));
+            }
 
             for (String data : structureData) {
                 String[] splitData = data.split(", ");
 
                 createBlock(
                         (int) (vec.getX() + Integer.parseInt(splitData[0])),
-                        (int) (vec.getY() + Integer.parseInt(splitData[1])),
+                        Integer.parseInt(splitData[1]),
                         (int) (vec.getZ() + Integer.parseInt(splitData[2])),
                         Material.getMaterial(splitData[3]),
                         Byte.parseByte(splitData[4])
@@ -113,19 +126,7 @@ public class SpecialAttack extends Attack {
                     }
 
                     if (counter == 40) {
-                        ParticlePolygon cubeFilled = ParticleSFX.cubeFilled(new ParticleBlockBreak(new Vector()), new LocationSafe(world, 0.5, 0.5, 0.5), 0.5, 100);
-                        ParticlePolygon cube = ParticleSFX.cube(new ParticleBlockBreak(new Vector()), new LocationSafe(world, 0.5, 0.5, 0.5), 1.5, 100);
-
-                        cubes.add(new ParticleShapeCompound(cubeFilled, cube));
-                        rot.set(0, 45D * i, 0);
-                        rot.apply(vec.setX(0).setY(30).setZ(-35));
-                        vec.setX((int) vec.getX()).setY((int) vec.getY()).setZ((int) vec.getZ());
-                        cubes.get(i).move(vec);
-
-                        for (int k = 0; k < 8; k++) {
-                            cube.getCorner(k).connect(cubeFilled.getCorner(k));
-                        }
-
+                        cubes.get(i).setParticle(new ParticleBlockBreak(new Vector()));
                         cancel();
                     }
                 }
@@ -222,11 +223,59 @@ public class SpecialAttack extends Attack {
         }
     }
 
+    public void handleCubeDamage(Location l, double distance) {
+        ParticleShapeCompound cube = null;
+
+        for (ParticleShapeCompound compound : cubes) {
+            if (l.distanceSquared(compound.getShape(0).getClonedCenter()) <= Math.pow(distance, 2)) {
+                cube = compound;
+
+                break;
+            }
+        }
+
+        if (cube == null) return;
+
+        ParticleBlockBreak particle = (ParticleBlockBreak) cube.getShape(0).getParticle();
+        ParticleShapeCompound finalCube = cube;
+
+        particle.setLocationToGo(cube.getLocations()[0]);
+        cube.getShape(1).setParticle(particle);
+        cube.getShape(2).stop();
+
+        new BukkitRunnable() {
+
+            private int counter = 0;
+
+            @Override
+            public void run() {
+                Material randomMaterial;
+
+                counter++;
+
+                finalCube.getShape(0).rotate(5, 5, 1);
+                finalCube.getShape(1).rotate(5, 5, 1);
+
+                do {
+                    randomMaterial = Material.values()[ThreadLocalRandom.current().nextInt(Material.values().length)];
+                } while (!randomMaterial.isBlock());
+
+                particle.setMaterialData(new MaterialData(randomMaterial));
+
+                if (counter == 25) {
+                    world.createExplosion(finalCube.getClonedCenter().subtract(0, 3, 0), 5);
+                    cubes.remove(finalCube);
+                    finalCube.stop();
+                }
+            }
+        }.runTaskTimer(Main.getInstance(), 0, 1);
+    }
+
     //as far as i can tell this is the best way to get falling blocks to not fall pre-1.10, its annoying and janky but oh well i guess
     private void createBlock(int x, int y, int z, Material material, int data) {
         EntityFallingBlock block = new EntityFallingBlock(((CraftWorld) this.world).getHandle(), x + 0.5, y, z + 0.5, Block.getById(material.getId()).fromLegacyData(data)) {
 
-            private final int i = counter / 20;
+            private final ParticleShaper cube = (ParticleShaper) cubes.get(counter / 20).getShape(0);
 
             @Override
             public void t_() {
@@ -234,7 +283,7 @@ public class SpecialAttack extends Attack {
 
                 super.t_();
 
-                if (cubes.size() > i && !((ParticlePolygon) cubes.get(i).getShape(0)).isRunning()) return;
+                if (!cube.isRunning()) return;
 
                 motY = 0.04;
                 velocityChanged = true;
@@ -252,21 +301,3 @@ public class SpecialAttack extends Attack {
         structureBlocksList.get(counter / 20).add(block);
     }
 }
-
-
-
-
-
-
-
-//        if (counter >= 300 && (counter - 300) % 100 == 0 && counter <= 1000) {
-//            int i;
-//
-//            do {
-//                i = ThreadLocalRandom.current().nextInt(cubes.size());
-//            } while (!((ParticleShaper) cubes.get(i).getShape(0)).isRunning());
-//
-//            cubes.get(i).stop();
-//            structureBlocksList.get(i).clear();
-//            world.createExplosion(cubes.get(i).getClonedCenter().subtract(0, 3, 0), 5);
-//        }
