@@ -51,7 +51,7 @@ public class BowAttack extends Attack {
             new BukkitRunnable() {
 
                 private final ParticleImage arrow = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 43, -36.5), new File("plugins/arrow.png"), 5, 200).setRadius(3);
-                private final LocationSafe loc = new LocationSafe(world, 0, 0, 0);
+                private final Location loc = new Location(world, 0, 0, 0);
                 private final Rotation rot = new Rotation();
                 private final Vector vec = new Vector();
                 private final Player target = getTarget();

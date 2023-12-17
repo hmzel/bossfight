@@ -41,7 +41,7 @@ public class StabAttack extends Attack {
 
             private final ParticleImage sword = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0, 0, 0), new File("plugins/swordempty.png"), 3, 100);
             private final ParticleCircle circle = new ParticleCircle(new ParticleWitchMagic(), new LocationSafe(world, 0, 0, 0), 0.35, 0.35, 50);
-            private final LocationSafe loc = new LocationSafe(world, 0, 0, 0);
+            private final Location loc = new Location(world, 0, 0, 0);
             private final Rotation rot = new Rotation();
             private final Vector vec = new Vector();
             private final Player target = getTarget();

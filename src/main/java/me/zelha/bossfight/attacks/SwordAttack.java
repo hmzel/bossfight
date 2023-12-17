@@ -61,7 +61,7 @@ public class SwordAttack extends Attack {
             new BukkitRunnable() {
 
                 private final ParticleCircle slash = new ParticleCircle(new ParticleFirework(new Vector()), new LocationSafe(world, 0.5, 43, -36.5), 3, 3, 50);
-                private final LocationSafe loc = new LocationSafe(world, 0, 0, 0);
+                private final Location loc = new Location(world, 0, 0, 0);
                 private Vector vec = null;
                 private int counter = 0;
                 private boolean parried = false;

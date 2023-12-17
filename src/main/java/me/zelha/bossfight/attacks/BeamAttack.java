@@ -39,7 +39,7 @@ public class BeamAttack extends Attack {
             private final TravellingParticle beamParticle = ((TravellingParticle) beam.getParticle());
             private final ThreadLocalRandom rng = ThreadLocalRandom.current();
             private final Location center = new Location(world, 0.5, 27, 0.5);
-            private final LocationSafe loc = new LocationSafe(world, 0, 0, 0);
+            private final Location loc = new Location(world, 0, 0, 0);
             private final Rotation rot = new Rotation();
             private final Vector vec = new Vector();
             private final Player target = getTarget();

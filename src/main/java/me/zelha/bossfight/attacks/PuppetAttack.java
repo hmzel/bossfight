@@ -38,7 +38,7 @@ public class PuppetAttack extends Attack {
             private final ParticleShapeCompound controllerBar = new ParticleShapeCompound();
             private final ParticleShapeCompound controller = new ParticleShapeCompound();
             private final List<LocationSafe> limbs = new ArrayList<>();
-            private final LocationSafe parryLoc = new LocationSafe(world, 0, 0, 0);
+            private final Location parryLoc = new Location(world, 0, 0, 0);
             private final Location loc = new Location(world, 0, 0, 0);
             private final Rotation rot = new Rotation();
             private final Vector vec = new Vector();

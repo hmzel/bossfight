@@ -1,6 +1,5 @@
 package me.zelha.bossfight.listeners;
 
-import hm.zelha.particlesfx.util.LocationSafe;
 import me.zelha.bossfight.Main;
 import net.minecraft.server.v1_8_R3.IChatBaseComponent;
 import net.minecraft.server.v1_8_R3.PacketPlayOutChat;
@@ -93,7 +92,7 @@ public class ParryListener implements Listener {
         return parryMap.get(runnable).getPlayer();
     }
 
-    public static void listenForParry(BukkitRunnable runnable, LocationSafe location, double radius) {
+    public static void listenForParry(BukkitRunnable runnable, Location location, double radius) {
         parryMap.put(runnable, new Parry(location, radius, null));
     }
 
