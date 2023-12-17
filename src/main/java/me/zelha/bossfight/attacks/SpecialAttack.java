@@ -103,9 +103,9 @@ public class SpecialAttack extends Attack {
                 String[] splitData = data.split(", ");
 
                 createBlock(
-                        (int) (vec.getX() + Integer.parseInt(splitData[0])),
+                        (int) vec.getX() + Integer.parseInt(splitData[0]),
                         Integer.parseInt(splitData[1]),
-                        (int) (vec.getZ() + Integer.parseInt(splitData[2])),
+                        (int) vec.getZ() + Integer.parseInt(splitData[2]),
                         Material.getMaterial(splitData[3]),
                         Byte.parseByte(splitData[4])
                 );
@@ -196,19 +196,14 @@ public class SpecialAttack extends Attack {
             for (ParticleShapeCompound compound : cubes) {
                 compound.stop();
             }
-
-            centerBeam.stop();
-            structureBlocksList.clear();
         }
 
         if (cubes.isEmpty()) {
             deactivating = true;
-
-            centerBeam.stop();
-            structureBlocksList.clear();
         }
 
         if (activating || deactivating) {
+            centerBeam.stop();
             magicCircle.scale(0.99);
             magicCircle.rotate(0, (magicCircle.getXRadius() - 500) / 10, 0);
 
@@ -228,6 +223,7 @@ public class SpecialAttack extends Attack {
                 attackTask.cancel();
                 magicCircle.stop();
                 cubes.clear();
+                structureBlocksList.clear();
                 magicCircle.setXRadius(1);
                 magicCircle.setZRadius(1);
                 magicCircleParticle.setSize(1D);
@@ -279,9 +275,11 @@ public class SpecialAttack extends Attack {
                 particle.setMaterialData(new MaterialData(randomMaterial));
 
                 if (counter == 25) {
-                    world.createExplosion(finalCube.getClonedCenter().subtract(0, 3, 0), 5);
+                    structureBlocksList.remove(cubes.indexOf(finalCube));
                     cubes.remove(finalCube);
                     finalCube.stop();
+                    world.createExplosion(finalCube.getClonedCenter().subtract(0, 3, 0), 5);
+                    cancel();
                 }
             }
         }.runTaskTimer(Main.getInstance(), 0, 1);

@@ -88,7 +88,7 @@ public class StabAttack extends Attack {
                 if (inGround) return;
 
                 if (!parried && ParryListener.getParryPlayer(this) != null) {
-                    Location l = ParryListener.getParryPlayer(this).getLocation().add(0, 1.625, 0);
+                    Location l = ParryListener.getParryPlayer(this).getLocation();
 
                     sword.setRotation(l.getPitch() - 90, l.getYaw(), 0);
 

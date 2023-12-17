@@ -35,28 +35,27 @@ public class BeamAttack extends Attack {
 
         new BukkitRunnable() {
 
+            private final ParticleImage magicCircle = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 63, 0.5), new File("plugins/summoningcircle.png"), 0.01, 500);
             private final TravellingParticle beamParticle = ((TravellingParticle) beam.getParticle());
             private final ThreadLocalRandom rng = ThreadLocalRandom.current();
             private final Location center = new Location(world, 0.5, 27, 0.5);
-            private final Location loc = new Location(world, 0, 0, 0);
+            private final LocationSafe loc = new LocationSafe(world, 0, 0, 0);
             private final Rotation rot = new Rotation();
             private final Vector vec = new Vector();
             private final Player target = getTarget();
-            private ParticleImage magicCircle = null;
-            private boolean hasParried = false;
+            private boolean parried = false;
             private int counter = 0;
 
             @Override
             public void run() {
                 if (target == null) {
+                    magicCircle.stop();
                     cancel();
 
                     return;
                 }
 
-                if (magicCircle == null) {
-                    magicCircle = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 63, 0.5), new File("plugins/summoningcircle.png"), 0.01, 500);
-
+                if (counter == 0) {
                     magicCircle.rotateAroundLocation(new Location(world, 0.5, 27, 0.5), rng.nextDouble(80), rng.nextDouble(360), 0);
                 }
 
@@ -79,9 +78,9 @@ public class BeamAttack extends Attack {
                     beam.display();
                 }
 
-                if (!hasParried && ParryListener.getParryPlayer(this) != null) {
+                if (!parried && ParryListener.getParryPlayer(this) != null) {
                     Location l = ParryListener.getParryPlayer(this).getLocation();
-                    hasParried = true;
+                    parried = true;
 
                     beam.getLocation(0).zero().add(loc);
                     loc.add(l.getDirection().multiply(loc.distance(Main.getBossfight().getEntity().getBukkitEntity().getLocation())));

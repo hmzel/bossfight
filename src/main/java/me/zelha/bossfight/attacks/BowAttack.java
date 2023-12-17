@@ -50,12 +50,12 @@ public class BowAttack extends Attack {
 
             new BukkitRunnable() {
 
+                private final ParticleImage arrow = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 43, -36.5), new File("plugins/arrow.png"), 5, 200).setRadius(3);
                 private final LocationSafe loc = new LocationSafe(world, 0, 0, 0);
                 private final Rotation rot = new Rotation();
                 private final Vector vec = new Vector();
                 private final Player target = getTarget();
-                private ParticleImage arrow = null;
-                private boolean beenParried = false;
+                private boolean parried = false;
                 private boolean inGround = false;
                 private double damageRadius = 0.75;
                 private int counter = 0;
@@ -69,9 +69,7 @@ public class BowAttack extends Attack {
                         return;
                     }
 
-                    if (arrow == null) {
-                        arrow = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 43, -36.5), new File("plugins/arrow.png"), 5, 200).setRadius(3);
-
+                    if (counter == 0) {
                         arrow.setAxisRotation(0, 135, 90);
                         arrow.setRotation(-145, 0, 0);
                         world.playSound(arrow.getCenter(), Sound.SHOOT_ARROW, 100, 0.75f);
@@ -89,30 +87,28 @@ public class BowAttack extends Attack {
                     rot.set(arrow.getPitch(), arrow.getYaw(), arrow.getRoll());
                     rot.apply(vec.zero().setY(-3));
 
-                    if (world.getBlockAt(loc.zero().add(arrow.getCenter()).add(vec)).getType() != Material.AIR) {
-                        if (!inGround) {
-                            world.playSound(arrow.getCenter(), Sound.ARROW_HIT, 5, 0.75f);
-                            ParryListener.stopParryListening(this);
+                    if (!inGround && world.getBlockAt(loc.zero().add(arrow.getCenter()).add(vec)).getType() != Material.AIR) {
+                        world.playSound(arrow.getCenter(), Sound.ARROW_HIT, 5, 0.75f);
+                        ParryListener.stopParryListening(this);
 
-                            inGround = true;
-                        }
-
-                        return;
+                        inGround = true;
                     }
 
-                    if (!beenParried && ParryListener.getParryPlayer(this) != null) {
-                        Location l = ParryListener.getParryPlayer(this).getLocation().add(0, 1.625, 0);
+                    if (inGround) return;
+
+                    if (!parried && ParryListener.getParryPlayer(this) != null) {
+                        Location l = ParryListener.getParryPlayer(this).getLocation();
 
                         arrow.setRotation(l.getPitch() - 90, l.getYaw(), 0);
 
                         damageRadius = 1.5;
-                        beenParried = true;
+                        parried = true;
                     }
 
                     arrow.move(vec.multiply(0.5));
                     damageNearby(loc.zero().add(arrow.getCenter()).add(vec.multiply(2)), damageRadius, 5, arrow.getCenter());
 
-                    if (beenParried) return;
+                    if (parried) return;
 
                     Utils.faceSlowly(arrow, target.getLocation(), Math.min(20, counter));
                 }
