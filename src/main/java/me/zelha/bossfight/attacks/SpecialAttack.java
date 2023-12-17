@@ -251,6 +251,8 @@ public class SpecialAttack extends Attack {
         ParticleBlockBreak particle = (ParticleBlockBreak) cube.getShape(0).getParticle();
         ParticleShapeCompound finalCube = cube;
 
+        if (particle.getLocationToGo() != null) return;
+
         particle.setLocationToGo(cube.getLocations()[0]);
         cube.getShape(1).setParticle(particle);
         cube.getShape(2).stop();

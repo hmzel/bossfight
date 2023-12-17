@@ -8,6 +8,7 @@ import hm.zelha.particlesfx.shapers.ParticleLine;
 import hm.zelha.particlesfx.util.LocationSafe;
 import hm.zelha.particlesfx.util.ParticleSFX;
 import hm.zelha.particlesfx.util.Rotation;
+import hm.zelha.particlesfx.util.ShapeDisplayMechanic;
 import me.zelha.bossfight.Main;
 import me.zelha.bossfight.listeners.ParryListener;
 import org.bukkit.Location;
@@ -26,6 +27,7 @@ public class BeamAttack extends Attack {
     protected BeamAttack() {
         super(true);
 
+        beam.addMechanic(ShapeDisplayMechanic.Phase.AFTER_DISPLAY, ((particle, current, addition, count) -> Attacks.getSpecialAttack().handleCubeDamage(current, 1.5)));
         beam.stop();
     }
 
