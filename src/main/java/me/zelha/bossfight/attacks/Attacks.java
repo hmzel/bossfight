@@ -1,9 +1,12 @@
 package me.zelha.bossfight.attacks;
 
+import org.bukkit.scheduler.BukkitTask;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 public enum Attacks {
     BOW(new BowAttack()),
+    SWORD(new SwordAttack()),
     BEAM(new BeamAttack()),
     PUPPET(new PuppetAttack()),
     HAND(new HandAttack()),
@@ -15,16 +18,14 @@ public enum Attacks {
         this.attack = attack;
     }
 
-    public static void randomAttack(int ticks) {
+    public static BukkitTask randomAttack(int ticks) {
         Attacks attack = values()[ThreadLocalRandom.current().nextInt(values().length)];
 
         if (attack == SPECIAL) {
-            randomAttack(ticks);
-
-            return;
+            return randomAttack(ticks);
         }
 
-        attack.getMethods().run(ticks);
+        return attack.getMethods().run(ticks);
     }
 
     public Attack getMethods() {
