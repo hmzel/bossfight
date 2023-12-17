@@ -66,7 +66,7 @@ public class ParryListener implements Listener {
             if (!inCircle) continue;
 
             parry.setPlayer(p);
-            p.getWorld().playSound(l, Sound.ANVIL_LAND, 1, 0.7f);
+            p.getWorld().playSound(l, Sound.ZOMBIE_METAL, 1, 1.25f);
 
             hasParried = true;
 
