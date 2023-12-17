@@ -3,9 +3,9 @@ package me.zelha.bossfight.attacks;
 import hm.zelha.particlesfx.particles.ParticleDustColored;
 import hm.zelha.particlesfx.shapers.ParticleImage;
 import hm.zelha.particlesfx.util.LocationSafe;
-import hm.zelha.particlesfx.util.ParticleSFX;
 import hm.zelha.particlesfx.util.Rotation;
 import me.zelha.bossfight.Main;
+import me.zelha.bossfight.Utils;
 import me.zelha.bossfight.listeners.ParryListener;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -50,7 +50,7 @@ public class BowAttack extends Attack {
 
             new BukkitRunnable() {
 
-                private final Location loc = new Location(world, 0, 0, 0);
+                private final LocationSafe loc = new LocationSafe(world, 0, 0, 0);
                 private final Rotation rot = new Rotation();
                 private final Vector vec = new Vector();
                 private final Player target = getTarget();
@@ -63,6 +63,7 @@ public class BowAttack extends Attack {
                 @Override
                 public void run() {
                     if (target == null) {
+                        arrow.stop();
                         cancel();
 
                         return;
@@ -90,7 +91,7 @@ public class BowAttack extends Attack {
 
                     if (world.getBlockAt(loc.zero().add(arrow.getCenter()).add(vec)).getType() != Material.AIR) {
                         if (!inGround) {
-                            world.playSound(arrow.getCenter(), Sound.ARROW_HIT, 100, 0.75f);
+                            world.playSound(arrow.getCenter(), Sound.ARROW_HIT, 5, 0.75f);
                             ParryListener.stopParryListening(this);
 
                             inGround = true;
@@ -101,57 +102,19 @@ public class BowAttack extends Attack {
 
                     if (!beenParried && ParryListener.getParryPlayer(this) != null) {
                         Location l = ParryListener.getParryPlayer(this).getLocation().add(0, 1.625, 0);
-                        Location forward = l.clone().add(l.getDirection().multiply(3));
-                        double[] direction = ParticleSFX.getDirection(forward, l);
 
-                        arrow.setRotation(direction[0], direction[1], 0);
+                        arrow.setRotation(l.getPitch() - 90, l.getYaw(), 0);
 
                         damageRadius = 1.5;
                         beenParried = true;
                     }
 
-                    arrow.move(rot.apply(vec.zero().setY(-1.5)));
-                    damageNearby(loc.zero().add(arrow.getCenter()).add(rot.apply(vec.zero().setY(-3))), damageRadius, 5, arrow.getCenter());
+                    arrow.move(vec.multiply(0.5));
+                    damageNearby(loc.zero().add(arrow.getCenter()).add(vec.multiply(2)), damageRadius, 5, arrow.getCenter());
 
                     if (beenParried) return;
 
-                    double[] direction = ParticleSFX.getDirection(target.getLocation(), arrow.getCenter());
-                    double pitchInc, yawInc;
-                    double pitch = arrow.getPitch();
-                    double yaw = arrow.getYaw();
-                    double wantedPitch = direction[0];
-                    double wantedYaw = direction[1];
-                    double speed = Math.min(20, counter);
-
-                    if (pitch + speed <= wantedPitch) {
-                        pitchInc = speed;
-                    } else if (pitch - speed >= wantedPitch) {
-                        pitchInc = -speed;
-                    } else {
-                        pitchInc = wantedPitch - pitch;
-                    }
-
-                    if (yaw + (360 - wantedYaw) < Math.abs(yaw - wantedYaw)) {
-                        yawInc = -speed;
-                    } else if (wantedYaw + (360 - yaw) < Math.abs(yaw - wantedYaw)) {
-                        yawInc = speed;
-                    } else if (yaw + speed <= wantedYaw) {
-                        yawInc = speed;
-                    } else if (yaw - speed >= wantedYaw) {
-                        yawInc = -speed;
-                    } else {
-                        yawInc = wantedYaw - yaw;
-                    }
-
-                    if (yaw + yawInc > 360) {
-                        yawInc = yawInc - 360;
-                    }
-
-                    if (yaw + yawInc < 0) {
-                        yawInc = yawInc + 360;
-                    }
-
-                    arrow.rotate(pitchInc, yawInc, 0);
+                    Utils.faceSlowly(arrow, target.getLocation(), Math.min(20, counter));
                 }
             }.runTaskTimer(Main.getInstance(), 0, 1);
         }
