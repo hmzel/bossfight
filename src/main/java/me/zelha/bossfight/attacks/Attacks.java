@@ -8,6 +8,7 @@ public enum Attacks {
     BOW(new BowAttack()),
     SWORD(new SwordAttack()),
     STAB(new StabAttack()),
+    SWORD_RAIN(new SwordRainAttack()),
     BEAM(new BeamAttack()),
     PUPPET(new PuppetAttack()),
     HAND(new HandAttack()),

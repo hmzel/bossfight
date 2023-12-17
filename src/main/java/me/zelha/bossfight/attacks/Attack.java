@@ -29,9 +29,7 @@ public abstract class Attack {
 
     public BukkitTask run(int ticks) {
         if (!allowMultiple && running > 0) {
-            Attacks.randomAttack(ticks);
-
-            return null;
+            return Attacks.randomAttack(ticks);
         }
 
         running++;
