@@ -110,7 +110,7 @@ public class BowAttack extends Attack {
 
                     if (parried) return;
 
-                    Utils.faceSlowly(arrow, target.getLocation(), Math.min(20, counter));
+                    Utils.faceSlowly(arrow, target.getLocation().subtract(0, 0.1, 0), Math.min(20, counter));
                 }
             }.runTaskTimer(Main.getInstance(), 0, 1);
         }
