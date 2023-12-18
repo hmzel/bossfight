@@ -12,7 +12,6 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import java.io.File;
@@ -32,7 +31,7 @@ public class BowAttack extends Attack {
     }
 
     @Override
-    public BukkitTask run(int ticks) {
+    public boolean run(int ticks) {
         Main.getBossfight().getEye().stop();
         bow.start();
 

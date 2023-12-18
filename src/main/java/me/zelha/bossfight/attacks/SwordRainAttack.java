@@ -12,7 +12,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import java.io.File;
@@ -25,12 +24,14 @@ public class SwordRainAttack extends Attack {
 
     protected SwordRainAttack() {
         super(false);
+
+        circle.stop();
     }
 
     @Override
-    public BukkitTask run(int ticks) {
-        if (Main.getBossfight().getEntity().getHealth() > 250) {
-            return Attacks.randomAttack(ticks);
+    public boolean run(int ticks) {
+        if (Main.getBossfight().getEntity().getHealth() > 375) {
+            return false;
         }
 
         target = getTarget();
@@ -68,7 +69,7 @@ public class SwordRainAttack extends Attack {
             @Override
             public void run() {
                 if (counter == 0) {
-                    vec.setX(rng.nextDouble(circle.getXRadius() - 1));
+                    vec.setX(rng.nextDouble(Math.max(1, circle.getXRadius() - 1)));
                     vec.setY(20);
                     rot.set(0, rng.nextDouble(360), 0);
                     rot.apply(vec);

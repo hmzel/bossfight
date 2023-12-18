@@ -21,7 +21,6 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.material.MaterialData;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import java.io.BufferedReader;
@@ -45,7 +44,6 @@ public class SpecialAttack extends Attack {
     private final Location loc = new Location(world, 0, 0, 0);
     private final Rotation rot = new Rotation();
     private final Vector vec = new Vector();
-    private BukkitTask attackTask = null;
     private boolean deactivating = false;
     private boolean activating = false;
 
@@ -74,13 +72,6 @@ public class SpecialAttack extends Attack {
         for (int i = 0; i < 8; i++) {
             structureBlocksList.add(new ArrayList<>());
         }
-    }
-
-    @Override
-    public BukkitTask run(int ticks) {
-        attackTask = super.run(Integer.MAX_VALUE);
-
-        return attackTask;
     }
 
     @Override
@@ -222,7 +213,7 @@ public class SpecialAttack extends Attack {
                     }
                 }
 
-                attackTask.cancel();
+                forceStop();
                 magicCircle.stop();
                 cubes.clear();
                 structureBlocksList.clear();
@@ -232,7 +223,6 @@ public class SpecialAttack extends Attack {
 
                 deactivating = false;
                 activating = false;
-                counter = 0;
             }
         }
     }
@@ -287,6 +277,10 @@ public class SpecialAttack extends Attack {
                 }
             }
         }.runTaskTimer(Main.getInstance(), 0, 1);
+    }
+
+    public boolean isActivating() {
+        return counter < 200;
     }
 
     //as far as i can tell this is the best way to get falling blocks to not fall pre-1.10, its annoying and janky but oh well i guess

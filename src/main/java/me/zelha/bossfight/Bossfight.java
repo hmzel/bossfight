@@ -38,6 +38,8 @@ public class Bossfight extends BukkitRunnable {
     private final ParticleSphere sphere = (ParticleSphere) new ParticleSphere(new ParticleExplosion(10D), new LocationSafe(world, 0.5, 28, 0.5), 500, 500, 500, 4).setLimit(25).setLimitInverse(true).stop();
     private final EntityPlayer boss;
     private Wither bossbar = null;
+    private Attacks lastAttack2 = null;
+    private Attacks lastAttack = null;
     private boolean started = false;
     private boolean wingFlapping = true;
     private long lastHit = 0;
@@ -160,6 +162,24 @@ public class Bossfight extends BukkitRunnable {
             }
 
             lookAtPlayers();
+
+            if (!Attacks.getSpecialAttack().isActivating() || !Attacks.getSpecialAttack().isRunning()) {
+                if (counter % 600 == 0) {
+                    lastAttack = Attacks.randomAttack(600, Attacks.SPECIAL, lastAttack);
+                }
+
+                if (counter % 1200 == 0 && boss.getHealth() <= 375) {
+                    lastAttack2 = Attacks.randomAttack(1200, Attacks.SPECIAL, lastAttack2);
+                }
+            }
+
+            if (!Attacks.getSpecialAttack().isRunning() && boss.getHealth() <= 50) {
+                for (Attacks attack : Attacks.values()) {
+                    attack.getMethods().forceStop();
+                }
+
+                Attacks.getSpecialAttack().run(0);
+            }
 
             if ((counter - 500) % 80 == 0) wingFlapping = !wingFlapping;
 

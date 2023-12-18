@@ -12,7 +12,6 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import java.io.File;
@@ -20,7 +19,7 @@ import java.io.File;
 public class SwordAttack extends Attack {
 
     private final ParticleImage sword = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 43, -36.5), new File("plugins/sword.png"), 3, 300);
-    private final Location bossLoc = Main.getBossfight().getEntity().getBukkitEntity().getLocation().add(0, 1, 0);
+    private final Location bossLoc = new Location(world, 0.5, 37, -36.5);
     private Player target = null;
     private double pitch = -46;
     private double yaw = 46;
@@ -33,9 +32,9 @@ public class SwordAttack extends Attack {
     }
 
     @Override
-    public BukkitTask run(int ticks) {
-        if (Main.getBossfight().getEntity().getHealth() > 250) {
-            return Attacks.randomAttack(ticks);
+    public boolean run(int ticks) {
+        if (Main.getBossfight().getEntity().getHealth() > 375) {
+            return false;
         }
 
         sword.start();

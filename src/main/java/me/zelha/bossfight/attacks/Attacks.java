@@ -1,7 +1,5 @@
 package me.zelha.bossfight.attacks;
 
-import org.bukkit.scheduler.BukkitTask;
-
 import java.util.concurrent.ThreadLocalRandom;
 
 public enum Attacks {
@@ -20,14 +18,20 @@ public enum Attacks {
         this.attack = attack;
     }
 
-    public static BukkitTask randomAttack(int ticks) {
+    public static Attacks randomAttack(int ticks, Attacks... exclusions) {
         Attacks attack = values()[ThreadLocalRandom.current().nextInt(values().length)];
 
-        if (attack == SPECIAL) {
-            return randomAttack(ticks);
+        for (Attacks exclusion : exclusions) {
+            if (attack == exclusion) {
+                return randomAttack(ticks, exclusions);
+            }
         }
 
-        return attack.getMethods().run(ticks);
+        if (!attack.getMethods().run(ticks)) {
+            return randomAttack(ticks, exclusions);
+        }
+
+        return attack;
     }
 
     public Attack getMethods() {

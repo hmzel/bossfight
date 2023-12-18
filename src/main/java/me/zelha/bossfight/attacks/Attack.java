@@ -9,32 +9,30 @@ import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class Attack {
 
     protected final World world = Bukkit.getWorld("zelha");
-    protected final Entity damageEntity = new EntitySilverfish(((CraftWorld) world).getHandle());
-    protected final boolean allowMultiple;
+    private final List<BukkitRunnable> runnables = new ArrayList<>();
+    private final Entity damageEntity = new EntitySilverfish(((CraftWorld) world).getHandle());
+    private final boolean allowMultiple;
     protected int counter = 0;
-    private int running = 0;
 
     protected Attack(boolean allowMultiple) {
         this.allowMultiple = allowMultiple;
     }
 
-    public BukkitTask run(int ticks) {
-        if (!allowMultiple && running > 0) {
-            return Attacks.randomAttack(ticks);
+    public boolean run(int ticks) {
+        if (!allowMultiple && isRunning()) {
+            return false;
         }
 
-        running++;
-
-        return new BukkitRunnable() {
+        BukkitRunnable runnable = new BukkitRunnable() {
 
             private int counter = 0;
 
@@ -46,20 +44,33 @@ public abstract class Attack {
                 counter++;
 
                 if (counter == ticks) {
+                    runnables.remove(this);
                     cancel();
 
-                    running--;
-
-                    if (running != 0) return;
+                    if (isRunning()) return;
 
                     reset();
                 }
             }
-        }.runTaskTimer(Main.getInstance(), 0, 1);
+        };
+
+        runnables.add(runnable);
+        runnable.runTaskTimer(Main.getInstance(), 0, 1);
+
+        return true;
+    }
+
+    public void forceStop() {
+        for (BukkitRunnable runnable : runnables) {
+            runnable.cancel();
+        }
+
+        runnables.clear();
+        reset();
     }
 
     public boolean isRunning() {
-        return running != 0;
+        return !runnables.isEmpty();
     }
 
     protected abstract void attack();

@@ -197,6 +197,14 @@ public class HandAttack extends Attack {
             }.runTaskTimer(Main.getInstance(), 0, 1);
         }
     }
+
+    @Override
+    protected void reset() {
+        hand.setAroundRotation(hand.getClonedCenter(), 0, 0, 0);
+        hand.setRotation(0, 0, 0);
+        hand.move(0, 1000, 0);
+        super.reset();
+    }
 }
 
 

@@ -14,7 +14,6 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import java.io.File;
@@ -25,9 +24,9 @@ public class StabAttack extends Attack {
     }
 
     @Override
-    public BukkitTask run(int ticks) {
-        if (Main.getBossfight().getEntity().getHealth() > 250) {
-            return Attacks.randomAttack(ticks);
+    public boolean run(int ticks) {
+        if (Main.getBossfight().getEntity().getHealth() > 375) {
+            return false;
         }
 
         return super.run(ticks);
