@@ -71,6 +71,8 @@ public class HandAttack extends Attack {
             }
 
             shape.addMechanic(ShapeDisplayMechanic.Phase.BEFORE_ROTATION, ((particle, location, vector, k) -> {
+                if (headMap.get(shape).size() <= k) return;
+
                 headMap.get(shape).get(k).teleport(new LocationSafe(location).subtract(0, 1.8, 0));
                 headMap.get(shape).get(k).setHeadPose(new EulerAngle(Math.toRadians(shape.getPitch() + hand.getPitch()), Math.toRadians(shape.getYaw() + hand.getYaw()), -Math.toRadians(shape.getRoll() + hand.getRoll())));
             }));

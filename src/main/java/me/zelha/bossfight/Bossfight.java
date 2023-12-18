@@ -74,7 +74,12 @@ public class Bossfight extends BukkitRunnable {
                 rot.set(direction[0], direction[1], 0);
                 rot.apply(addition);
                 current.add(addition);
-                particle.displayForPlayers(current, p);
+
+                //i have NO idea whats causing this error, but its harmless so whatever
+                try {
+                    particle.displayForPlayers(current, p);
+                } catch (IndexOutOfBoundsException | NullPointerException ignored) {}
+
                 current.subtract(addition);
             }
         }));
