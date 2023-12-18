@@ -26,12 +26,11 @@ public class ParryListener implements Listener {
     @EventHandler
     public void onInteract(PlayerInteractEvent e) {
         Player p = e.getPlayer();
-        boolean hasParried = false;
 
         if (e.getAction() != Action.LEFT_CLICK_AIR && e.getAction() != Action.LEFT_CLICK_BLOCK) return;
         if (!p.getItemInHand().getType().name().contains("SWORD")) return;
 
-        if (cooldownMap.containsKey(p.getUniqueId()) && cooldownMap.get(p.getUniqueId()) + 3000 > System.currentTimeMillis()) {
+        if (cooldownMap.containsKey(p.getUniqueId())) {
             String text = "{\"text\":\"§cParrying is on cooldown for " + (cooldownMap.get(p.getUniqueId()) + 3000 - System.currentTimeMillis()) / 1000D + "s\"}";
 
             ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutChat(IChatBaseComponent.ChatSerializer.a(text), (byte) 2));
@@ -66,24 +65,17 @@ public class ParryListener implements Listener {
 
             parry.setPlayer(p);
             p.getWorld().playSound(l, Sound.ZOMBIE_METAL, 1, 1.25f);
+            cooldownMap.put(p.getUniqueId(), System.currentTimeMillis());
 
-            hasParried = true;
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    cooldownMap.remove(p.getUniqueId());
+                }
+            }.runTaskLater(Main.getInstance(), 60);
 
             break;
         }
-
-        cooldownMap.put(p.getUniqueId(), System.currentTimeMillis());
-
-        if (!hasParried) {
-            p.getWorld().playSound(p.getLocation(), Sound.ENDERDRAGON_WINGS, 1, 1.5f);
-        }
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                cooldownMap.remove(p.getUniqueId());
-            }
-        }.runTaskLater(Main.getInstance(), 60);
     }
 
     public static Player getParryPlayer(BukkitRunnable runnable) {
