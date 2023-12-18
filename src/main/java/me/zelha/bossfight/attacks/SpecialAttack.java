@@ -196,6 +196,8 @@ public class SpecialAttack extends Attack {
             for (ParticleShapeCompound compound : cubes) {
                 compound.stop();
             }
+
+            Main.getBossfight().startEscapeAnimation();
         }
 
         if (cubes.isEmpty()) {
