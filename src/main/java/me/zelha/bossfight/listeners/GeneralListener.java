@@ -1,7 +1,9 @@
 package me.zelha.bossfight.listeners;
 
 import me.zelha.bossfight.Bossfight;
+import me.zelha.bossfight.Main;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -37,6 +39,9 @@ public class GeneralListener implements Listener {
         inv.setLeggings(new ItemStack(Material.IRON_LEGGINGS));
         inv.setBoots(new ItemStack(Material.IRON_BOOTS));
         p.teleport(new Location(Bukkit.getWorld("zelha"), 0.5, 27, 20.5, 180, 0));
+        p.setGameMode(GameMode.SURVIVAL);
+        p.setSaturation(20);
+        p.setHealth(20);
         Bossfight.sendBossCreationPackets(p);
 
         for (ItemStack item : inv.getArmorContents()) {
@@ -53,9 +58,26 @@ public class GeneralListener implements Listener {
 
         if (e.getCause() == EntityDamageEvent.DamageCause.FALL) {
             e.setCancelled(true);
+
+            return;
         }
 
         if (!(e.getEntity() instanceof Player)) {
+            e.setCancelled(true);
+
+            return;
+        }
+
+        Player p = (Player) e.getEntity();
+
+        if (p.getHealth() - e.getFinalDamage() <= 0) {
+            if (Main.getBossfight().getEntity() == null) {
+                p.teleport(new Location(Bukkit.getWorld("zelha"), 0.5, 27, 20.5, 180, 0));
+                p.setHealth(20);
+            } else {
+                p.setGameMode(GameMode.SPECTATOR);
+            }
+
             e.setCancelled(true);
         }
     }

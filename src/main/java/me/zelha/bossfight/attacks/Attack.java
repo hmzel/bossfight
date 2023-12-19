@@ -4,6 +4,7 @@ import me.zelha.bossfight.Main;
 import net.minecraft.server.v1_8_R3.Entity;
 import net.minecraft.server.v1_8_R3.EntitySilverfish;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
@@ -102,6 +103,12 @@ public abstract class Attack {
 
     protected Player getTarget() {
         List<Player> players = world.getPlayers();
+
+        for (Player p : new ArrayList<>(players)) {
+            if (p.getGameMode() == GameMode.SPECTATOR) {
+                players.remove(p);
+            }
+        }
 
         if (players.isEmpty()) return null;
 
