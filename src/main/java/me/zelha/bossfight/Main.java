@@ -1,7 +1,6 @@
 package me.zelha.bossfight;
 
 import hm.zelha.particlesfx.util.ParticleSFX;
-import me.zelha.bossfight.attacks.Attacks;
 import me.zelha.bossfight.listeners.AirJumpListener;
 import me.zelha.bossfight.listeners.DashListener;
 import me.zelha.bossfight.listeners.GeneralListener;
@@ -138,6 +137,15 @@ public final class Main extends JavaPlugin {
 
             e.remove();
         }
+    }
+
+    //this is the easiest way to reset the bossfight and there doesnt seem to be any problems with doing it this way, so whatev
+    public static void reset() {
+        bossfight.cancel();
+
+        bossfight = new Bossfight();
+
+        bossfight.runTaskTimer(instance, 0, 1);
     }
 
     public static Main getInstance() {

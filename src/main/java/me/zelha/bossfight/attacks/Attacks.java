@@ -34,11 +34,15 @@ public enum Attacks {
         return attack;
     }
 
-    public Attack getMethods() {
-        return attack;
+    public static boolean hasNoTarget() {
+        return getSpecialAttack().getTarget() == null;
     }
 
     public static SpecialAttack getSpecialAttack() {
         return (SpecialAttack) SPECIAL.getMethods();
+    }
+
+    public Attack getMethods() {
+        return attack;
     }
 }

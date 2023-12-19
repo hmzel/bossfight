@@ -10,7 +10,6 @@ import hm.zelha.particlesfx.particles.parents.ColorableParticle;
 import hm.zelha.particlesfx.shapers.ParticleImage;
 import hm.zelha.particlesfx.shapers.ParticleLine;
 import hm.zelha.particlesfx.shapers.ParticleSphere;
-import hm.zelha.particlesfx.shapers.parents.Shape;
 import hm.zelha.particlesfx.util.Color;
 import hm.zelha.particlesfx.util.Rotation;
 import hm.zelha.particlesfx.util.*;
@@ -24,6 +23,7 @@ import org.bukkit.craftbukkit.v1_8_R3.entity.CraftWither;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Wither;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -45,12 +45,12 @@ public class Bossfight extends BukkitRunnable {
     private final ParticleShapeCompound wings = new ParticleShapeCompound();
     private final ParticleImage summoningCircle = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 27.2, 0.5), new File("plugins/summoningcircle.png"), 5, 5, 1000);
     private final ParticleSphere sphere = (ParticleSphere) new ParticleSphere(new ParticleExplosion(10D), new LocationSafe(world, 0.5, 28, 0.5), 500, 500, 500, 4).setLimit(25).setLimitInverse(true).stop();
+    private final ParticleLine dyingShape = (ParticleLine) new ParticleLine(new ParticleExplosionEmitter(), 100, new LocationSafe(world, 0.5, 36, -36.5), new LocationSafe(world, 0.5, 36, -36.5)).stop();
     private final Vector vec = new Vector();
     private EntityPlayer boss;
     private Wither bossbar = null;
     private Attacks lastAttack2 = null;
     private Attacks lastAttack = null;
-    private Shape dyingShape = null;
     private boolean wingFlapping = true;
     private boolean isEscaping = false;
     private boolean isDying = false;
@@ -70,6 +70,7 @@ public class Bossfight extends BukkitRunnable {
         wings.addShape(wings.getShape(0).clone());
         wings.getShape(1).move(7.5, 0, 0);
         watcher.addPlayer(UUID.randomUUID());
+        dyingShape.stop();
         wings.stop();
 
         for (int i = 0; i <= 1; i++) {
@@ -119,6 +120,12 @@ public class Bossfight extends BukkitRunnable {
         }
 
         if (!started) return;
+
+        if (Attacks.hasNoTarget()) {
+            reset();
+
+            return;
+        }
 
         counter++;
 
@@ -308,12 +315,8 @@ public class Bossfight extends BukkitRunnable {
             }
 
             if (counter - startedDying == 65) {
-                dyingShape = new ParticleLine(new ParticleExplosionEmitter(), 100, new LocationSafe(world, 0.5, 36, -36.5), new LocationSafe(world, 0.5, 36, -36.5));
-
-                for (Player p : world.getPlayers()) {
-                    ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityDestroy(boss.getId()));
-                }
-
+                sendEntityDestroyPacket();
+                dyingShape.start();
                 getEye().stop();
                 wings.stop();
             }
@@ -325,8 +328,8 @@ public class Bossfight extends BukkitRunnable {
             }
 
             if (counter - startedDying >= 65 && counter - startedDying <= 127) {
-                dyingShape.getLocations()[0].subtract(0, 1.2, 0);
-                dyingShape.getLocations()[1].add(0, 6.8, 0);
+                dyingShape.getLocation(0).subtract(0, 1.2, 0);
+                dyingShape.getLocation(1).add(0, 6.8, 0);
             }
 
             if (counter - startedDying >= 100) {
@@ -344,6 +347,7 @@ public class Bossfight extends BukkitRunnable {
             if (counter - startedDying == 250) {
                 for (Player p : world.getPlayers()) {
                     MinecraftServer.getServer().getPlayerList().moveToWorld(((CraftPlayer) p).getHandle(), 0, false);
+                    p.getInventory().clear();
                 }
 
                 modifiedDeathAnimLocs.clear();
@@ -389,10 +393,7 @@ public class Bossfight extends BukkitRunnable {
             }
 
             if (counter - startedEscaping == 165) {
-                for (Player p : world.getPlayers()) {
-                    ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityDestroy(boss.getId()));
-                }
-
+                sendEntityDestroyPacket();
                 wings.stop();
             }
 
@@ -449,6 +450,37 @@ public class Bossfight extends BukkitRunnable {
         world.playSound(boss.getBukkitEntity().getLocation(), Sound.WITHER_IDLE, 5, 2);
 
         lastHit = System.currentTimeMillis();
+    }
+
+    private void reset() {
+        for (Attacks attack : Attacks.values()) {
+            attack.getMethods().forceStop();
+        }
+
+        for (Player p : world.getPlayers()) {
+            Bukkit.getPluginManager().callEvent(new PlayerJoinEvent(p, null));
+        }
+
+        if (bossbar != null) {
+            bossbar.remove();
+        }
+
+        sendEntityDestroyPacket();
+
+        boss = null;
+
+        summoningCircle.stop();
+        dyingShape.stop();
+        watcher.stop();
+        wings.stop();
+        sphere.stop();
+        Main.reset();
+    }
+
+    private void sendEntityDestroyPacket() {
+        for (Player p : world.getPlayers()) {
+            ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityDestroy(boss.getId()));
+        }
     }
 
     public EntityPlayer getEntity() {

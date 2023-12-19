@@ -101,28 +101,16 @@ public class SpecialAttack extends Attack {
                         Byte.parseByte(splitData[4])
                 );
             }
+        }
 
-            new BukkitRunnable() {
+        if (counter < 160) {
+            for (Entity e : structureBlocksList.get(counter / 20)) {
+                e.setPosition(e.locX, e.locY + 0.7, e.locZ);
+            }
+        }
 
-                private final int i = SpecialAttack.this.counter / 20;
-                private int counter = 0;
-
-                @Override
-                public void run() {
-                    counter++;
-
-                    if (counter <= 20) {
-                        for (Entity e : structureBlocksList.get(i)) {
-                            e.setPosition(e.locX, e.locY + 0.7, e.locZ);
-                        }
-                    }
-
-                    if (counter == 40) {
-                        cubes.get(i).setParticle(new ParticleBlockBreak(new Vector()));
-                        cancel();
-                    }
-                }
-            }.runTaskTimer(Main.getInstance(), 1, 1);
+        if (counter % 20 == 0 && counter >= 20 && counter <= 160) {
+            cubes.get((counter / 20) - 1).setParticle(new ParticleBlockBreak(new Vector()));
         }
 
         for (ParticleShapeCompound cube : cubes) {
@@ -212,17 +200,33 @@ public class SpecialAttack extends Attack {
                 }
 
                 forceStop();
-                magicCircle.stop();
-                cubes.clear();
-                structureBlocksList.clear();
-                magicCircle.setXRadius(1);
-                magicCircle.setZRadius(1);
-                magicCircleParticle.setSize(1D);
-
-                deactivating = false;
-                activating = false;
             }
         }
+    }
+
+    @Override
+    protected void reset() {
+        for (ParticleShapeCompound cube : cubes) {
+            cube.stop();
+        }
+
+        structureBlocksList.clear();
+        magicCircleParticle.setSize(1);
+        magicCircle.setRotation(0, 0, 0);
+        magicCircle.setXRadius(1);
+        magicCircle.setZRadius(1);
+        magicCircle.stop();
+        centerBeam.stop();
+        cubes.clear();
+
+        for (int i = 0; i < 8; i++) {
+            structureBlocksList.add(new ArrayList<>());
+        }
+
+        deactivating = false;
+        activating = false;
+
+        super.reset();
     }
 
     public void handleCubeDamage(Location l, double distance) {
