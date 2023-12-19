@@ -15,6 +15,7 @@ import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -187,6 +188,7 @@ public class SpecialAttack extends Attack {
             magicCircle.rotate(0, (magicCircle.getXRadius() - 500) / 10, 0);
 
             if (activating) {
+                world.playSound(magicCircle.getCenter(), Sound.EXPLODE, 10, (float) (0.5 + ThreadLocalRandom.current().nextDouble()));
                 magicCircle.getCenter().subtract(0, 0.75, 0);
             } else {
                 magicCircle.scale(0.95);
