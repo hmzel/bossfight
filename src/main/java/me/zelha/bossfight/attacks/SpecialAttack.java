@@ -187,8 +187,6 @@ public class SpecialAttack extends Attack {
             for (ParticleShapeCompound compound : cubes) {
                 compound.stop();
             }
-
-            Main.getBossfight().startEscapeAnimation();
         }
 
         if (cubes.isEmpty()) {
@@ -279,8 +277,12 @@ public class SpecialAttack extends Attack {
         }.runTaskTimer(Main.getInstance(), 0, 1);
     }
 
-    public boolean isActivating() {
+    public boolean isStarting() {
         return counter < 200;
+    }
+
+    public boolean isActivated() {
+        return activating;
     }
 
     //as far as i can tell this is the best way to get falling blocks to not fall pre-1.10, its annoying and janky but oh well i guess

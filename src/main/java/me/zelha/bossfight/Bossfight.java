@@ -33,15 +33,17 @@ public class Bossfight extends BukkitRunnable {
 
     private final World world = Bukkit.getWorld("zelha");
     private final ParticleShapeCompound watcher = new ParticleShapeCompound();
-    private final ParticleShapeCompound wings = createWings();
+    private final ParticleShapeCompound wings = new ParticleShapeCompound();
     private final ParticleImage summoningCircle = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 27.2, 0.5), new File("plugins/summoningcircle.png"), 5, 5, 1000);
     private final ParticleSphere sphere = (ParticleSphere) new ParticleSphere(new ParticleExplosion(10D), new LocationSafe(world, 0.5, 28, 0.5), 500, 500, 500, 4).setLimit(25).setLimitInverse(true).stop();
     private final EntityPlayer boss;
     private Wither bossbar = null;
     private Attacks lastAttack2 = null;
     private Attacks lastAttack = null;
-    private boolean started = false;
     private boolean wingFlapping = true;
+    private boolean isEscaping = false;
+    private boolean started = false;
+    private int startedEscaping = 0;
     private long lastHit = 0;
     private int counter = 0;
 
@@ -57,7 +59,15 @@ public class Bossfight extends BukkitRunnable {
         summoningCircle.rotate(180, 0, 0);
         watcher.addShape(new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 33, 0.5), new File("plugins/outereye.png"), 9, 500));
         watcher.addShape(new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 33, 0.5), new File("plugins/innereye.gif"), 2.5, 500).setRadius(3));
+        wings.addShape(new ParticleImage(new ParticleDustColored(), new LocationSafe(world, -3.25, 39.5, -36.6), new File("plugins/wing.png"), 1, 500).setRadius(4));
+        wings.addShape(wings.getShape(0).clone());
+        wings.getShape(1).move(7.5, 0, 0);
         watcher.addPlayer(UUID.randomUUID());
+        wings.stop();
+
+        for (int i = 0; i <= 1; i++) {
+            wings.getShape(i).setAxisRotation(-90, (180 * i), 10 + (-20 * i));
+        }
 
         ShapeDisplayMechanic damageMechanic = ((particle, current, addition, count) -> {
             if (lastHit + 500 < System.currentTimeMillis()) return;
@@ -140,8 +150,8 @@ public class Bossfight extends BukkitRunnable {
             summoningCircle.stop();
             world.playSound(summoningCircle.getCenter(), Sound.WITHER_DEATH, 100, 0);
             getEye().setRadius(5).move(0, 10, -37);
-            getEye().start();
             getEye().setCurrentFrame(0);
+            getEye().start();
 
             for (Player p : world.getPlayers()) {
                 sendBossCreationPackets(p);
@@ -156,14 +166,24 @@ public class Bossfight extends BukkitRunnable {
             bossbar.setHealth(bossbar.getMaxHealth() * (boss.getHealth() / boss.getMaxHealth()));
 
             for (Player p : world.getPlayers()) {
-                Location l = p.getLocation().multiply(32).add(p.getLocation().getDirection().multiply(1500));
+                PlayerConnection pc = ((CraftPlayer) p).getHandle().playerConnection;
+                Location bossbar = p.getLocation().multiply(32).add(p.getLocation().getDirection().multiply(1500));
+                Location boss = this.boss.getBukkitEntity().getLocation();
 
-                ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityTeleport(bossbar.getEntityId(), l.getBlockX(), l.getBlockY(), l.getBlockZ(), (byte) 0, (byte) 0, false));
+                boss.setDirection(p.getLocation().subtract(boss).toVector());
+                pc.sendPacket(new PacketPlayOutEntityTeleport(this.bossbar.getEntityId(), bossbar.getBlockX(), bossbar.getBlockY(), bossbar.getBlockZ(), (byte) 0, (byte) 0, false));
+                pc.sendPacket(new PacketPlayOutEntityHeadRotation(this.boss, (byte) ((boss.getYaw() % 360) * 256 / 360)));
+                pc.sendPacket(new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook(this.boss.getId(), (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) ((boss.getPitch() % 360) * 256 / 360), true));
             }
 
-            lookAtPlayers();
+            if (!isEscaping && Attacks.getSpecialAttack().isActivated()) {
+                startedEscaping = counter;
+                isEscaping = true;
+            }
+        }
 
-            if (!Attacks.getSpecialAttack().isActivating() || !Attacks.getSpecialAttack().isRunning()) {
+        if (counter > 500 && !isEscaping) {
+            if (!Attacks.getSpecialAttack().isStarting() || !Attacks.getSpecialAttack().isRunning()) {
                 if (counter % 600 == 0) {
                     lastAttack = Attacks.randomAttack(600, Attacks.SPECIAL, lastAttack);
                 }
@@ -197,6 +217,75 @@ public class Bossfight extends BukkitRunnable {
                 }
             }
         }
+
+        if (isEscaping) {
+            if (counter - startedEscaping == 0) {
+                for (Attacks attack : Attacks.values()) {
+                    if (attack == Attacks.SPECIAL) continue;
+
+                    attack.getMethods().forceStop();
+                }
+
+                for (int i = 0; i < 2; i++) {
+                    wings.getShape(i).setRotation(0, 0, 0);
+                }
+
+                wings.move(wings.getClonedCenter().subtract(boss.locX, boss.locY + 3.5, boss.locZ - 0.25).multiply(-1));
+                getEye().setCurrentFrame(193);
+                bossbar.remove();
+                wings.start();
+            }
+
+            if (counter - startedEscaping == 20) {
+                getEye().stop();
+
+                for (int i = 0; i < 208; i++) {
+                    getEye().removeFrame(0);
+                }
+
+                getEye().addImage(new File("plugins/eyeportal.gif"));
+                getEye().removeMechanic(1);
+                getEye().setAxisRotation(-90, 0, 0);
+                getEye().removePlayer(0);
+                getEye().start();
+            }
+
+            if (counter - startedEscaping >= 20 && counter - startedEscaping <= 110) {
+                for (int i = 0; i < 2; i++) {
+                    wings.getShape(i).setParticleFrequency((int) (wings.getShape(i).getParticleFrequency() * 0.99));
+                }
+
+                wings.scale(0.99);
+                getEye().scale(1.01);
+                getEye().setParticleFrequency((int) (getEye().getParticleFrequency() * 1.01));
+                getEye().rotate(0, 0.22, 1);
+                getEye().move(0.0075, -0.05, -0.05);
+                wings.move(0, -0.016, 0);
+            }
+
+            if (counter - startedEscaping > 120 && counter - startedEscaping <= 150) {
+                getEye().move(0, -0.05, 0.185);
+            }
+
+            if (counter - startedEscaping == 165) {
+                for (Player p : world.getPlayers()) {
+                    ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityDestroy(boss.getId()));
+                }
+
+                wings.stop();
+            }
+
+            if (counter - startedEscaping == 172) {
+                getEye().setFrameDelay(Integer.MAX_VALUE);
+            }
+
+            if (counter - startedEscaping == 180) {
+                getEye().stop();
+                getEye().setParticle(new ParticleSwirlTransparent());
+                getEye().display();
+                getEye().display();
+            }
+        }
     }
 
     public static void sendBossCreationPackets(Player player) {
@@ -222,105 +311,6 @@ public class Bossfight extends BukkitRunnable {
         }.runTaskLater(Main.getInstance(), 20);
     }
 
-    public void startEscapeAnimation() {
-        for (Attacks attack : Attacks.values()) {
-            if (attack == Attacks.SPECIAL) continue;
-
-            attack.getMethods().forceStop();
-        }
-
-        bossbar.remove();
-        cancel();
-
-        new BukkitRunnable() {
-
-            private final ParticleShapeCompound wings = createWings();
-            private final ParticleImage eye = getEye();
-            private boolean wingFlapping = true;
-            private int counter = 0;
-
-            @Override
-            public void run() {
-                if (counter == 0) {
-                    Bossfight.this.wings.stop();
-                    eye.setCurrentFrame(193);
-                    wings.start();
-                }
-
-                counter++;
-
-                lookAtPlayers();
-
-                if (counter == 20) {
-                    eye.stop();
-
-                    for (int i = 0; i < 208; i++) {
-                        eye.removeFrame(0);
-                    }
-
-                    eye.addImage(new File("plugins/eyeportal.gif"));
-                    eye.removeMechanic(1);
-                    eye.setAxisRotation(-90, 0, 0);
-                    eye.removePlayer(0);
-                    eye.start();
-                }
-
-                if (counter % 80 == 0) wingFlapping = !wingFlapping;
-
-                if (wingFlapping) {
-                    wings.move(0, -0.015, 0.01);
-
-                    for (int i = 0; i <= 1; i++) {
-                        wings.getShape(i).rotate(0.5, 0, 0.5 - i);
-                    }
-                } else {
-                    wings.move(0, 0.015, -0.01);
-
-                    for (int i = 0; i <= 1; i++) {
-                        wings.getShape(i).rotate(-0.5, 0, -0.5 + i);
-                    }
-                }
-
-                if (counter >= 20 && counter <= 110) {
-                    for (int i = 0; i < 2; i++) {
-                        wings.getShape(i).setParticleFrequency((int) (wings.getShape(i).getParticleFrequency() * 0.99));
-                    }
-
-                    wings.scale(0.99);
-                    eye.scale(1.01);
-                    eye.setParticleFrequency((int) (eye.getParticleFrequency() * 1.01));
-                    eye.rotate(0, 0.22, 1);
-                    eye.move(0.0075, -0.05, -0.05);
-                    wings.move(0, -0.0155, -0.0025);
-                }
-
-                if (counter > 120 && counter <= 150) {
-                    eye.move(0, -0.05, 0.185);
-                }
-
-                if (counter == 165) {
-                    for (Player p : world.getPlayers()) {
-                        ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityDestroy(boss.getId()));
-                    }
-
-                    wings.stop();
-                }
-
-                if (counter == 172) {
-                    eye.setFrameDelay(Integer.MAX_VALUE);
-                }
-
-                if (counter == 180) {
-                    eye.stop();
-                    eye.setParticle(new ParticleSwirlTransparent());
-                    eye.display();
-                    eye.display();
-                    cancel();
-                }
-            }
-        }.runTaskTimerAsynchronously(Main.getInstance(), 0, 1);
-    }
-
     public void handleDamage(double damage) {
         if (lastHit + 500 > System.currentTimeMillis()) return;
 
@@ -332,32 +322,6 @@ public class Bossfight extends BukkitRunnable {
         world.playSound(boss.getBukkitEntity().getLocation(), Sound.WITHER_IDLE, 5, 2);
 
         lastHit = System.currentTimeMillis();
-    }
-
-    private void lookAtPlayers() {
-        for (Player p : world.getPlayers()) {
-            PlayerConnection pc = ((CraftPlayer) p).getHandle().playerConnection;
-            Location l = boss.getBukkitEntity().getLocation();
-
-            l.setDirection(p.getLocation().subtract(l).toVector());
-            pc.sendPacket(new PacketPlayOutEntityHeadRotation(boss, (byte) ((l.getYaw() % 360) * 256 / 360)));
-            pc.sendPacket(new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook(boss.getId(), (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) ((l.getPitch() % 360) * 256 / 360), true));
-        }
-    }
-
-    private ParticleShapeCompound createWings() {
-        ParticleShapeCompound wings = new ParticleShapeCompound();
-
-        wings.addShape(new ParticleImage(new ParticleDustColored(), new LocationSafe(world, -3.25, 39.5, -36.6), new File("plugins/wing.png"), 1, 500).setRadius(4));
-        wings.addShape(wings.getShape(0).clone());
-        wings.getShape(1).move(7.5, 0, 0);
-        wings.stop();
-
-        for (int i = 0; i <= 1; i++) {
-            wings.getShape(i).setAxisRotation(-90, (180 * i), 10 + (-20 * i));
-        }
-
-        return wings;
     }
 
     public EntityPlayer getEntity() {
