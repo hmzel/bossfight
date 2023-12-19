@@ -4,17 +4,20 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import hm.zelha.particlesfx.particles.ParticleDustColored;
 import hm.zelha.particlesfx.particles.ParticleExplosion;
+import hm.zelha.particlesfx.particles.ParticleExplosionEmitter;
 import hm.zelha.particlesfx.particles.ParticleSwirlTransparent;
 import hm.zelha.particlesfx.particles.parents.ColorableParticle;
 import hm.zelha.particlesfx.shapers.ParticleImage;
+import hm.zelha.particlesfx.shapers.ParticleLine;
 import hm.zelha.particlesfx.shapers.ParticleSphere;
+import hm.zelha.particlesfx.shapers.parents.Shape;
+import hm.zelha.particlesfx.util.Color;
+import hm.zelha.particlesfx.util.Rotation;
 import hm.zelha.particlesfx.util.*;
 import me.zelha.bossfight.attacks.Attacks;
 import net.minecraft.server.v1_8_R3.*;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Sound;
 import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftWither;
@@ -23,27 +26,37 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Wither;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Bossfight extends BukkitRunnable {
 
+    private final ThreadLocalRandom rng = ThreadLocalRandom.current();
     private final World world = Bukkit.getWorld("zelha");
+    private final List<Location> deathAnimLocs = new ArrayList<>();
+    private final List<Location> modifiedDeathAnimLocs = new ArrayList<>();
     private final ParticleShapeCompound watcher = new ParticleShapeCompound();
     private final ParticleShapeCompound wings = new ParticleShapeCompound();
     private final ParticleImage summoningCircle = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 27.2, 0.5), new File("plugins/summoningcircle.png"), 5, 5, 1000);
     private final ParticleSphere sphere = (ParticleSphere) new ParticleSphere(new ParticleExplosion(10D), new LocationSafe(world, 0.5, 28, 0.5), 500, 500, 500, 4).setLimit(25).setLimitInverse(true).stop();
+    private final Vector vec = new Vector();
     private final EntityPlayer boss;
     private Wither bossbar = null;
     private Attacks lastAttack2 = null;
     private Attacks lastAttack = null;
+    private Shape dyingShape = null;
     private boolean wingFlapping = true;
     private boolean isEscaping = false;
+    private boolean isDying = false;
     private boolean started = false;
     private int startedEscaping = 0;
+    private int startedDying = 0;
     private long lastHit = 0;
     private int counter = 0;
 
@@ -158,9 +171,9 @@ public class Bossfight extends BukkitRunnable {
             }
         }
 
-        if (counter > 500) {
+        if (counter > 500 && !isDying) {
             String name = bossbar.getCustomName().replaceAll("§k|§r§5", "");
-            int i = ThreadLocalRandom.current().nextInt(2, 8);
+            int i = rng.nextInt(2, 8);
 
             bossbar.setCustomName(name.substring(0, i) + "§k" + name.charAt(i) + "§r§5" + name.substring(i + 1, 8));
             bossbar.setHealth(bossbar.getMaxHealth() * (boss.getHealth() / boss.getMaxHealth()));
@@ -182,7 +195,7 @@ public class Bossfight extends BukkitRunnable {
             }
         }
 
-        if (counter > 500 && !isEscaping) {
+        if (counter > 500 && !isEscaping && !isDying) {
             if (!Attacks.getSpecialAttack().isStarting() || !Attacks.getSpecialAttack().isRunning()) {
                 if (counter % 600 == 0) {
                     lastAttack = Attacks.randomAttack(600, Attacks.SPECIAL, lastAttack);
@@ -218,22 +231,128 @@ public class Bossfight extends BukkitRunnable {
             }
         }
 
+        if (counter - startedEscaping == 0 || counter - startedDying == 0) {
+            for (Attacks attack : Attacks.values()) {
+                if (attack == Attacks.SPECIAL) continue;
+
+                attack.getMethods().forceStop();
+            }
+
+            for (int i = 0; i < 2; i++) {
+                wings.getShape(i).setRotation(0, 0, 0);
+            }
+
+            wings.move(wings.getClonedCenter().subtract(boss.locX, boss.locY + 3.5, boss.locZ - 0.25).multiply(-1));
+            bossbar.remove();
+        }
+
+        if (isDying) {
+            if (counter - startedDying == 0) {
+                for (int i = 0; i < 1000; i++) {
+                    deathAnimLocs.add(new Location(world, rng.nextDouble(400) - 200, rng.nextDouble(400) - 200, rng.nextDouble(400) - 200));
+                    deathAnimLocs.get(i).add(boss.locX, boss.locY, boss.locZ);
+                    modifiedDeathAnimLocs.add(deathAnimLocs.get(i).clone());
+                }
+            }
+
+            if (counter - startedDying <= 65) {
+                for (int i = 0; i < 1000; i++) {
+                    Location origin = deathAnimLocs.get(i);
+                    Location current = modifiedDeathAnimLocs.get(i);
+
+                    world.spigot().playEffect(current, Effect.CLOUD, 0, 0, 0, 0, 0, 0, 0, 1000);
+                    vec.setX(boss.locX - current.getX());
+                    vec.setY(boss.locY - current.getY());
+                    vec.setZ(boss.locZ - current.getZ());
+                    current.add(vec.normalize().multiply(origin.distance(boss.getBukkitEntity().getLocation()) / 65));
+                }
+            }
+
+            if (counter - startedDying == 20) {
+                for (int i = 0; i < 2; i++) {
+                    wings.getShape(i).setParticleFrequency((int) (wings.getShape(i).getParticleFrequency() * 0.99));
+                }
+
+                ParticleDustColored dust = new ParticleDustColored();
+
+                ShapeDisplayMechanic mechanic = (particle, current, addition, count) -> {
+                    if (count == 1) {
+                        Color color = ((ColorableParticle) particle).getColor();
+
+                        color.setRed(color.getRed() + rng.nextInt(255 - color.getRed()));
+                        color.setGreen(color.getGreen() + rng.nextInt(255 - color.getGreen()));
+                        color.setBlue(color.getBlue() + rng.nextInt(255 - color.getBlue()));
+                        dust.setColor(color.getRed(), color.getGreen(), color.getBlue());
+                    }
+
+                    current.add(addition);
+                    dust.display(current);
+                };
+
+                wings.addPlayer(UUID.randomUUID());
+                getEye().setParticleFrequency((int) (getEye().getParticleFrequency() * 0.99));
+                getEye().setAxisRotation(-90, 0, 0);
+                getEye().removeMechanic(1);
+                getEye().addMechanic(ShapeDisplayMechanic.Phase.AFTER_ROTATION, mechanic);
+                wings.addMechanic(ShapeDisplayMechanic.Phase.AFTER_ROTATION, mechanic);
+            }
+
+            if (counter - startedDying >= 30 && counter - startedDying <= 65) {
+                wings.scale(0.95);
+                getEye().scale(0.95);
+                getEye().rotate(0, 0, 10);
+                wings.move(0, -0.06, 0);
+                getEye().move(0, -0.12, 0);
+            }
+
+            if (counter - startedDying == 65) {
+                dyingShape = new ParticleLine(new ParticleExplosionEmitter(), 100, new LocationSafe(world, 0.5, 36, -36.5), new LocationSafe(world, 0.5, 36, -36.5));
+
+                for (Player p : world.getPlayers()) {
+                    ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityDestroy(boss.getId()));
+                }
+
+                getEye().stop();
+                wings.stop();
+            }
+
+            if (counter - startedDying >= 65 && counter - startedDying <= 70) {
+                for (int i = 0; i < 5; i++) {
+                    world.playSound(boss.getBukkitEntity().getLocation(), Sound.EXPLODE, 100, (float) rng.nextDouble(2));
+                }
+            }
+
+            if (counter - startedDying >= 65 && counter - startedDying <= 127) {
+                dyingShape.getLocations()[0].subtract(0, 1.2, 0);
+                dyingShape.getLocations()[1].add(0, 6.8, 0);
+            }
+
+            if (counter - startedDying >= 100) {
+                dyingShape.getParticle().setOffsetX((counter - startedDying - 100) * 0.3);
+                dyingShape.getParticle().setOffsetY((counter - startedDying - 100) * 0.3);
+                dyingShape.getParticle().setOffsetZ((counter - startedDying - 100) * 0.3);
+            }
+
+            if (counter - startedDying >= 175) {
+                for (Player p : world.getPlayers()) {
+                    world.playEffect(p.getLocation().add(0, 1, 0), Effect.PORTAL, 0);
+                }
+            }
+
+            if (counter - startedDying == 250) {
+                for (Player p : world.getPlayers()) {
+                    MinecraftServer.getServer().getPlayerList().moveToWorld(((CraftPlayer) p).getHandle(), 0, false);
+                }
+
+                modifiedDeathAnimLocs.clear();
+                deathAnimLocs.clear();
+                dyingShape.stop();
+            }
+        }
+
         if (isEscaping) {
             if (counter - startedEscaping == 0) {
-                for (Attacks attack : Attacks.values()) {
-                    if (attack == Attacks.SPECIAL) continue;
-
-                    attack.getMethods().forceStop();
-                }
-
-                for (int i = 0; i < 2; i++) {
-                    wings.getShape(i).setRotation(0, 0, 0);
-                }
-
-                wings.move(wings.getClonedCenter().subtract(boss.locX, boss.locY + 3.5, boss.locZ - 0.25).multiply(-1));
                 getEye().setCurrentFrame(193);
-                bossbar.remove();
-                wings.start();
             }
 
             if (counter - startedEscaping == 20) {
@@ -244,8 +363,8 @@ public class Bossfight extends BukkitRunnable {
                 }
 
                 getEye().addImage(new File("plugins/eyeportal.gif"));
-                getEye().removeMechanic(1);
                 getEye().setAxisRotation(-90, 0, 0);
+                getEye().removeMechanic(1);
                 getEye().removePlayer(0);
                 getEye().start();
             }
@@ -311,14 +430,20 @@ public class Bossfight extends BukkitRunnable {
         }.runTaskLater(Main.getInstance(), 20);
     }
 
-    public void handleDamage(double damage) {
-        if (lastHit + 500 > System.currentTimeMillis()) return;
+    public void handleDamage(double damage, boolean bypassImmunity) {
+        if (!bypassImmunity && lastHit + 500 > System.currentTimeMillis()) return;
 
         for (Player p : world.getPlayers()) {
             ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityStatus(boss, (byte) 2));
         }
 
-        boss.getBukkitEntity().setHealth(boss.getBukkitEntity().getHealth() - damage);
+        if (boss.getBukkitEntity().getHealth() - damage > 0) {
+            boss.getBukkitEntity().setHealth(boss.getBukkitEntity().getHealth() - damage);
+        } else {
+            startedDying = counter + 1;
+            isDying = true;
+        }
+
         world.playSound(boss.getBukkitEntity().getLocation(), Sound.WITHER_IDLE, 5, 2);
 
         lastHit = System.currentTimeMillis();

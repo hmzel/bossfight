@@ -96,7 +96,7 @@ public abstract class Attack {
 
         if (l.distanceSquared(Main.getBossfight().getEntity().getBukkitEntity().getLocation().add(0, 1, 0)) > Math.pow(distance, 2)) return;
 
-        Main.getBossfight().handleDamage(damage);
+        Main.getBossfight().handleDamage(damage, false);
     }
 
     protected Player getTarget() {

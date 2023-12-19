@@ -271,6 +271,7 @@ public class SpecialAttack extends Attack {
                     cubes.remove(finalCube);
                     finalCube.stop();
                     world.createExplosion(finalCube.getClonedCenter().subtract(0, 3, 0), 5);
+                    Main.getBossfight().handleDamage(6.25, true);
                     cancel();
                 }
             }
