@@ -430,11 +430,11 @@ public class Bossfight extends BukkitRunnable {
             public void run() {
                 pc.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, boss));
             }
-        }.runTaskLater(Main.getInstance(), 20);
+        }.runTaskLater(Main.getInstance(), 50);
     }
 
     public void handleDamage(double damage, boolean bypassImmunity) {
-        if (!bypassImmunity && lastHit + 500 > System.currentTimeMillis()) return;
+        if (!bypassImmunity && (lastHit + 500 > System.currentTimeMillis() || Attacks.getSpecialAttack().isRunning())) return;
 
         for (Player p : world.getPlayers()) {
             ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityStatus(boss, (byte) 2));
