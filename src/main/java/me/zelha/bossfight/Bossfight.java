@@ -97,17 +97,19 @@ public class Bossfight extends BukkitRunnable {
         watcher.addMechanic(ShapeDisplayMechanic.Phase.AFTER_ROTATION, ((particle, current, addition, count) -> {
             for (Player p : world.getPlayers()) {
                 double[] direction = ParticleSFX.getDirection(p.getLocation(), current);
+                Vector vec = new Vector();
 
+                vec.zero().add(addition);
                 rot.set(direction[0], direction[1], 0);
-                rot.apply(addition);
-                current.add(addition);
+                rot.apply(vec);
+                current.add(vec);
 
                 //i have NO idea whats causing this error, but its harmless so whatever
                 try {
                     particle.displayForPlayers(current, p);
                 } catch (IndexOutOfBoundsException | NullPointerException ignored) {}
 
-                current.subtract(addition);
+                current.subtract(vec);
             }
         }));
     }
