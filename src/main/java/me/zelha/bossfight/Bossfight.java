@@ -158,7 +158,7 @@ public class Bossfight extends BukkitRunnable {
             boss.getAttributeInstance(GenericAttributes.maxHealth).setValue(500);
             boss.getDataWatcher().watch(10, (byte) 127);
             boss.setPosition(0.5, 36, -36.5);
-            boss.setHealth(50);
+            boss.setHealth(500);
             bossbar.setMetadata("bossfight-entity", new FixedMetadataValue(Main.getInstance(), true));
             bossbar.setCustomName("§5Azazel");
             nmsWither.c(tag);
