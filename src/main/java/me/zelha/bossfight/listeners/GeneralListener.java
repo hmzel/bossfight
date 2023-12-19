@@ -15,10 +15,7 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
-import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -80,6 +77,17 @@ public class GeneralListener implements Listener {
 
             e.setCancelled(true);
         }
+    }
+
+    @EventHandler
+    public void onMove(PlayerMoveEvent e) {
+        Player p = e.getPlayer();
+        Location l = p.getLocation();
+
+        if (!p.getWorld().getName().equals("zelha")) return;
+        if (Math.pow(l.getX(), 2) + Math.pow(l.getZ(), 2) <= 6889) return;
+
+        p.setVelocity(l.toVector().setY(0).multiply(-1));
     }
 
     @EventHandler
