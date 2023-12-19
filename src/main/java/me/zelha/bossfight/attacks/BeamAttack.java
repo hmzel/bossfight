@@ -27,7 +27,15 @@ public class BeamAttack extends Attack {
     protected BeamAttack() {
         super(true);
 
-        beam.addMechanic(ShapeDisplayMechanic.Phase.AFTER_DISPLAY, ((particle, current, addition, count) -> Attacks.getSpecialAttack().handleCubeDamage(current, 1.5)));
+        beam.addMechanic(ShapeDisplayMechanic.Phase.AFTER_DISPLAY, ((particle, current, addition, count) -> {
+            Attacks.getSpecialAttack().handleCubeDamage(current, 1.5);
+
+            if (Main.getBossfight().getEntity() == null) return;
+            if (current.distanceSquared(Main.getBossfight().getEntity().getBukkitEntity().getLocation().add(0, 1, 0)) > 2.25) return;
+
+            Main.getBossfight().handleDamage(5, false);
+        }));
+
         beam.stop();
     }
 
@@ -85,7 +93,7 @@ public class BeamAttack extends Attack {
                     parried = true;
 
                     beam.getLocation(0).zero().add(loc);
-                    loc.add(l.getDirection().multiply(loc.distance(Main.getBossfight().getEntity().getBukkitEntity().getLocation())));
+                    loc.add(l.getDirection().multiply(75));
                     beam.getLocation(1).zero().add(loc);
                     beam.display();
                 }
