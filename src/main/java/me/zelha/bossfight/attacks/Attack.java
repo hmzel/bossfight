@@ -3,10 +3,7 @@ package me.zelha.bossfight.attacks;
 import me.zelha.bossfight.Main;
 import net.minecraft.server.v1_8_R3.Entity;
 import net.minecraft.server.v1_8_R3.EntitySilverfish;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -83,7 +80,7 @@ public abstract class Attack {
     /**
      * @return whether the boss was damaged
      */
-    protected boolean damageNearby(Location l, double distance, double damage, @Nullable Location damageLocation) {
+    protected void damageNearby(Location l, double distance, double damage, @Nullable Location damageLocation) {
         for (Player p : world.getPlayers()) {
             if (l.distanceSquared(p.getLocation()) > Math.pow(distance, 2)) continue;
 
@@ -98,10 +95,19 @@ public abstract class Attack {
 
         Attacks.getSpecialAttack().handleCubeDamage(l, distance);
 
-        if (Main.getBossfight().getEntity() == null) return false;
-        if (l.distanceSquared(Main.getBossfight().getEntity().getBukkitEntity().getLocation().add(0, 1, 0)) > Math.pow(distance, 2)) return false;
+        if (Main.getBossfight().getEntity() == null) return;
+        if (l.distanceSquared(Main.getBossfight().getEntity().getBukkitEntity().getLocation().add(0, 1, 0)) > Math.pow(distance, 2)) return;
 
-        return Main.getBossfight().handleDamage(damage, false);
+        Main.getBossfight().handleDamage(damage, false);
+    }
+
+    protected boolean shouldDeflect(Location l, double radius) {
+        if (!Attacks.getSpecialAttack().isRunning()) return false;
+        if (l.distanceSquared(Main.getBossfight().getEntity().getBukkitEntity().getLocation().add(0, 1, 0)) > Math.pow(radius, 2)) return false;
+
+        world.playSound(l, Sound.ZOMBIE_METAL, 10, 1.25f);
+
+        return true;
     }
 
     protected Player getTarget() {

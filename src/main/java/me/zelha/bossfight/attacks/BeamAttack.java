@@ -39,9 +39,9 @@ public class BeamAttack extends Attack {
 
             if (current.distanceSquared(bossLoc) > 2.25) return;
 
-            boolean didDamage = Main.getBossfight().handleDamage(5, false);
+            Main.getBossfight().handleDamage(5, false);
 
-            if (Attacks.getSpecialAttack().isRunning() && !didDamage) {
+            if (shouldDeflect(current, 1.5)) {
                 addition.zero().add(bossLoc.subtract(current).toVector()).normalize().multiply(-0.75);
                 beam.getLocation(1).zero().add(current).add(addition.clone().multiply(beam.getParticleFrequency() - count));
             }

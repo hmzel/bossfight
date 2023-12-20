@@ -3,6 +3,7 @@ package me.zelha.bossfight.attacks;
 import hm.zelha.particlesfx.particles.ParticleDustColored;
 import hm.zelha.particlesfx.shapers.ParticleImage;
 import hm.zelha.particlesfx.util.LocationSafe;
+import hm.zelha.particlesfx.util.ParticleSFX;
 import hm.zelha.particlesfx.util.Rotation;
 import me.zelha.bossfight.Main;
 import me.zelha.bossfight.Utils;
@@ -106,6 +107,12 @@ public class BowAttack extends Attack {
 
                     arrow.move(vec.multiply(0.5));
                     damageNearby(loc.zero().add(arrow.getCenter()).add(vec.multiply(2)), damageRadius, 5, arrow.getCenter());
+
+                    if (shouldDeflect(loc, 3)) {
+                        double[] direction = ParticleSFX.getDirection(loc, Main.getBossfight().getEntity().getBukkitEntity().getLocation().add(0, 1, 0));
+
+                        arrow.setRotation(direction[0], direction[1], 0);
+                    }
 
                     if (parried) return;
 
