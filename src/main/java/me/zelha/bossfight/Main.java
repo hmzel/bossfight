@@ -1,6 +1,7 @@
 package me.zelha.bossfight;
 
 import hm.zelha.particlesfx.util.ParticleSFX;
+import me.zelha.bossfight.attacks.Attacks;
 import me.zelha.bossfight.listeners.AirJumpListener;
 import me.zelha.bossfight.listeners.DashListener;
 import me.zelha.bossfight.listeners.GeneralListener;
@@ -14,6 +15,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public final class Main extends JavaPlugin {
 
@@ -113,6 +115,13 @@ public final class Main extends JavaPlugin {
 
         bossfight.runTaskTimer(this, 0, 1);
 
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                Attacks.PUPPET.getMethods().run(Integer.MAX_VALUE);
+            }
+        }.runTaskLater(this, 20);
+
         for (Player player : getServer().getOnlinePlayers()) {
             Bukkit.getPluginManager().callEvent(new PlayerJoinEvent(player, null));
         }
@@ -155,3 +164,7 @@ public final class Main extends JavaPlugin {
         return bossfight;
     }
 }
+
+//TODO:
+// refactor puppetattack
+// use the delayed teleport method in puppetattack

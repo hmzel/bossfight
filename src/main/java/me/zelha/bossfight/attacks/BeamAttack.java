@@ -93,13 +93,13 @@ public class BeamAttack extends Attack {
                 if (counter == 20) {
                     beam.getLocation(0).zero().add(magicCircle.getCenter());
                     beam.getLocation(1).zero().add(loc);
-                    ParryListener.listenForParry(this, loc, 5);
+                    ParryListener.listenForParry(getTaskId(), loc, 5);
                     beamParticle.setVelocity(new Vector());
                     beam.display();
                 }
 
-                if (!parried && ParryListener.getParryPlayer(this) != null) {
-                    Location l = ParryListener.getParryPlayer(this).getLocation();
+                if (!parried && ParryListener.getParryPlayer(getTaskId()) != null) {
+                    Location l = ParryListener.getParryPlayer(getTaskId()).getLocation();
                     parried = true;
 
                     beam.getLocation(0).zero().add(loc);
@@ -116,7 +116,7 @@ public class BeamAttack extends Attack {
                     beamParticle.setCount(5);
                     world.playSound(loc, Sound.FIREWORK_LARGE_BLAST, 0.5f, 0.75f);
                     damageNearby(loc, 1.5, 5, null);
-                    ParryListener.stopParryListening(this);
+                    ParryListener.stopParryListening(getTaskId());
 
                     for (Player p : world.getPlayers()) {
                         if (loc.distanceSquared(p.getLocation()) > 2.25) continue;

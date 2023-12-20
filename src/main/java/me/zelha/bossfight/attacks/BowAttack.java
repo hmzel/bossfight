@@ -73,13 +73,13 @@ public class BowAttack extends Attack {
                         arrow.setAxisRotation(0, 135, 90);
                         arrow.setRotation(-145, 0, 0);
                         world.playSound(arrow.getCenter(), Sound.SHOOT_ARROW, 100, 0.75f);
-                        ParryListener.listenForParry(this, loc, 1.5);
+                        ParryListener.listenForParry(getTaskId(), loc, 1.5);
                     }
 
                     counter++;
 
                     if (counter == 160) {
-                        ParryListener.stopParryListening(this);
+                        ParryListener.stopParryListening(getTaskId());
                         arrow.stop();
                         cancel();
                     }
@@ -89,15 +89,15 @@ public class BowAttack extends Attack {
 
                     if (!inGround && world.getBlockAt(loc.zero().add(arrow.getCenter()).add(vec)).getType() != Material.AIR) {
                         world.playSound(arrow.getCenter(), Sound.ARROW_HIT, 5, 0.75f);
-                        ParryListener.stopParryListening(this);
+                        ParryListener.stopParryListening(getTaskId());
 
                         inGround = true;
                     }
 
                     if (inGround) return;
 
-                    if (!parried && ParryListener.getParryPlayer(this) != null) {
-                        Location l = ParryListener.getParryPlayer(this).getLocation();
+                    if (!parried && ParryListener.getParryPlayer(getTaskId()) != null) {
+                        Location l = ParryListener.getParryPlayer(getTaskId()).getLocation();
 
                         arrow.setRotation(l.getPitch() - 90, l.getYaw(), 0);
 

@@ -20,7 +20,7 @@ import java.util.UUID;
 
 public class ParryListener implements Listener {
 
-    private static final Map<BukkitRunnable, Parry> parryMap = new HashMap<>();
+    private static final Map<Integer, Parry> parryMap = new HashMap<>();
     private final Map<UUID, Long> cooldownMap = new HashMap<>();
 
     @EventHandler
@@ -78,18 +78,18 @@ public class ParryListener implements Listener {
         }
     }
 
-    public static Player getParryPlayer(BukkitRunnable runnable) {
-        if (parryMap.get(runnable) == null) return null;
+    public static Player getParryPlayer(int id) {
+        if (parryMap.get(id) == null) return null;
 
-        return parryMap.get(runnable).getPlayer();
+        return parryMap.get(id).getPlayer();
     }
 
-    public static void listenForParry(BukkitRunnable runnable, Location location, double radius) {
-        parryMap.put(runnable, new Parry(location, radius, null));
+    public static void listenForParry(int id, Location location, double radius) {
+        parryMap.put(id, new Parry(location, radius, null));
     }
 
-    public static void stopParryListening(BukkitRunnable runnable) {
-        parryMap.remove(runnable);
+    public static void stopParryListening(int id) {
+        parryMap.remove(id);
     }
 
 

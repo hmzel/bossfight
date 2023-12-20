@@ -70,7 +70,7 @@ public class StabAttack extends Attack {
                 counter++;
 
                 if (counter == 180) {
-                    ParryListener.stopParryListening(this);
+                    ParryListener.stopParryListening(getTaskId());
                     sword.stop();
                     cancel();
                 }
@@ -80,15 +80,15 @@ public class StabAttack extends Attack {
 
                 if (!inGround && counter >= 45 && world.getBlockAt(loc.zero().add(sword.getCenter()).add(vec)).getType() != Material.AIR) {
                     world.playSound(sword.getCenter(), Sound.ZOMBIE_METAL, 5, 0.7f);
-                    ParryListener.stopParryListening(this);
+                    ParryListener.stopParryListening(getTaskId());
 
                     inGround = true;
                 }
 
                 if (inGround) return;
 
-                if (!parried && ParryListener.getParryPlayer(this) != null) {
-                    Location l = ParryListener.getParryPlayer(this).getLocation();
+                if (!parried && ParryListener.getParryPlayer(getTaskId()) != null) {
+                    Location l = ParryListener.getParryPlayer(getTaskId()).getLocation();
 
                     sword.setRotation(l.getPitch() - 90, l.getYaw(), 0);
 
@@ -119,7 +119,7 @@ public class StabAttack extends Attack {
                 }
 
                 if (counter == 45) {
-                    ParryListener.listenForParry(this, loc, 1.5);
+                    ParryListener.listenForParry(getTaskId(), loc, 1.5);
                 }
 
                 if (counter >= 45 && counter <= 90) {

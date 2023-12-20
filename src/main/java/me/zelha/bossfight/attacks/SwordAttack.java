@@ -74,15 +74,15 @@ public class SwordAttack extends Attack {
                         slash.setAroundRotation(bossLoc, direction[0] + pitch, direction[1] + yaw, 0);
                         slash.setRotation(-direction[0] - 90 + pitch, direction[1] + yaw + 180, 0);
                         world.playSound(slash.getCenter(), Sound.ENDERDRAGON_WINGS, 3, 1.25f);
-                        ParryListener.listenForParry(this, loc, 2);
+                        ParryListener.listenForParry(getTaskId(), loc, 2);
 
                         vec = target.getLocation(loc).add(0, 1, 0).subtract(slash.getCenter()).toVector().normalize().multiply(1.5);
                     }
 
                     counter++;
 
-                    if (ParryListener.getParryPlayer(this) != null && !parried) {
-                        Location l = ParryListener.getParryPlayer(this).getLocation();
+                    if (ParryListener.getParryPlayer(getTaskId()) != null && !parried) {
+                        Location l = ParryListener.getParryPlayer(getTaskId()).getLocation();
                         parried = true;
 
                         slash.setRotation(l.getPitch(), l.getYaw(), 0);
@@ -103,7 +103,7 @@ public class SwordAttack extends Attack {
                     damageNearby(loc, 2, 5, null);
 
                     if (counter == 80) {
-                        ParryListener.stopParryListening(this);
+                        ParryListener.stopParryListening(getTaskId());
                         slash.stop();
                         cancel();
                     }
