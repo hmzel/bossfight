@@ -101,9 +101,9 @@ public abstract class Attack {
         Main.getBossfight().handleDamage(damage, false);
     }
 
-    protected boolean shouldDeflect(Location l, double radius) {
+    protected boolean shouldDeflect(Location l) {
         if (!Attacks.getSpecialAttack().isRunning()) return false;
-        if (l.distanceSquared(Main.getBossfight().getEntity().getBukkitEntity().getLocation().add(0, 1, 0)) > Math.pow(radius, 2)) return false;
+        if (l.distanceSquared(Main.getBossfight().getEntity().getBukkitEntity().getLocation().add(0, 1, 0)) > 9) return false;
 
         world.playSound(l, Sound.ZOMBIE_METAL, 10, 1.25f);
 

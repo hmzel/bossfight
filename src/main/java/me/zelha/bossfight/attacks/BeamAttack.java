@@ -41,7 +41,7 @@ public class BeamAttack extends Attack {
 
             Main.getBossfight().handleDamage(5, false);
 
-            if (shouldDeflect(current, 1.5)) {
+            if (shouldDeflect(current)) {
                 addition.zero().add(bossLoc.subtract(current).toVector()).normalize().multiply(-0.75);
                 beam.getLocation(1).zero().add(current).add(addition.clone().multiply(beam.getParticleFrequency() - count));
             }

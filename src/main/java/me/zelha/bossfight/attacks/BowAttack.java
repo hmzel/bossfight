@@ -108,7 +108,7 @@ public class BowAttack extends Attack {
                     arrow.move(vec.multiply(0.5));
                     damageNearby(loc.zero().add(arrow.getCenter()).add(vec.multiply(2)), damageRadius, 5, arrow.getCenter());
 
-                    if (shouldDeflect(loc, 3)) {
+                    if (shouldDeflect(loc)) {
                         double[] direction = ParticleSFX.getDirection(loc, Main.getBossfight().getEntity().getBukkitEntity().getLocation().add(0, 1, 0));
 
                         arrow.setRotation(direction[0], direction[1], 0);

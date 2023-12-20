@@ -90,6 +90,14 @@ public class SwordAttack extends Attack {
                         vec.zero().add(l.getDirection()).multiply(1.5);
                     }
 
+                    if (shouldDeflect(loc)) {
+                        double[] direction = ParticleSFX.getDirection(loc, bossLoc);
+
+                        slash.setRotation(direction[0] + 90, direction[1], 0);
+                        slash.setAxisRoll(-slash.getAxisRoll());
+                        vec.zero().add(slash.getClonedCenter().subtract(bossLoc).toVector()).normalize().multiply(1.5);
+                    }
+
                     slash.move(vec);
                     loc.zero().add(slash.getCenter()).add(vec);
                     damageNearby(loc, 2, 5, null);

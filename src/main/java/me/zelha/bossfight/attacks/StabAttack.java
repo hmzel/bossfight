@@ -95,7 +95,7 @@ public class StabAttack extends Attack {
                     parried = true;
                 }
 
-                if (shouldDeflect(loc, 3)) {
+                if (shouldDeflect(loc)) {
                     double[] direction = ParticleSFX.getDirection(loc, Main.getBossfight().getEntity().getBukkitEntity().getLocation().add(0, 1, 0));
 
                     sword.setRotation(direction[0], direction[1], 0);
