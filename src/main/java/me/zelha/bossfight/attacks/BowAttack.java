@@ -19,7 +19,7 @@ import java.io.File;
 
 public class BowAttack extends Attack {
 
-    private final ParticleImage bow = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 43, -36.5), new File("plugins/bow.gif"), 5, 750).setRadius(3);
+    private final ParticleImage bow = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 43, -36.5), new File("plugins/bow.gif"), 3, 750);
     private int frame = 0;
 
     protected BowAttack() {
@@ -50,7 +50,7 @@ public class BowAttack extends Attack {
 
             new BukkitRunnable() {
 
-                private final ParticleImage arrow = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 43, -36.5), new File("plugins/arrow.png"), 5, 200).setRadius(3);
+                private final ParticleImage arrow = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 43, -36.5), new File("plugins/arrow.png"), 3, 200);
                 private final Location loc = new Location(world, 0, 0, 0);
                 private final Rotation rot = new Rotation();
                 private final Vector vec = new Vector();

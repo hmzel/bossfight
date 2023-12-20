@@ -65,8 +65,8 @@ public class Bossfight extends BukkitRunnable {
 
         summoningCircle.rotate(180, 0, 0);
         watcher.addShape(new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 33, 0.5), new File("plugins/outereye.png"), 9, 500));
-        watcher.addShape(new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 33, 0.5), new File("plugins/innereye.gif"), 2.5, 500).setRadius(3));
-        wings.addShape(new ParticleImage(new ParticleDustColored(), new LocationSafe(world, -3.25, 39.5, -36.6), new File("plugins/wing.png"), 1, 500).setRadius(4));
+        watcher.addShape(new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 33, 0.5), new File("plugins/innereye.gif"), 3, 1.68, 500));
+        wings.addShape(new ParticleImage(new ParticleDustColored(), new LocationSafe(world, -3.25, 39.5, -36.6), new File("plugins/wing.png"), 3.15, 4, 500));
         wings.addShape(wings.getShape(0).clone());
         wings.getShape(1).move(7.5, 0, 0);
         watcher.addPlayer(UUID.randomUUID());
@@ -171,7 +171,9 @@ public class Bossfight extends BukkitRunnable {
             sphere.stop();
             summoningCircle.stop();
             world.playSound(summoningCircle.getCenter(), Sound.WITHER_DEATH, 100, 0);
-            getEye().setRadius(5).move(0, 10, -37);
+            getEye().setXRadius(5);
+            getEye().setZRadius(2.8125);
+            getEye().move(0, 10, -37);
             getEye().setCurrentFrame(0);
             getEye().start();
 
