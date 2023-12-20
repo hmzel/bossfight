@@ -22,6 +22,7 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.material.MaterialData;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import java.io.BufferedReader;
@@ -45,6 +46,7 @@ public class SpecialAttack extends Attack {
     private final Location loc = new Location(world, 0, 0, 0);
     private final Rotation rot = new Rotation();
     private final Vector vec = new Vector();
+    private BukkitTask cubeDestroyTask = null;
     private boolean deactivating = false;
     private boolean activating = false;
 
@@ -140,33 +142,9 @@ public class SpecialAttack extends Attack {
             magicCircle.setZRadius(magicCircle.getZRadius() + 0.138 * (cubes.size() / 8D));
             magicCircle.rotate(0, cubes.size() / 8D, 0);
             centerBeam.getShape(0).rotate(5, 5, 1);
-            loc.zero().add(0.5, 0, 0.5);
-            rot.set(0, 0.5, 0);
 
-            for (ParticleShapeCompound compound : cubes) {
-                for (int i = 0; i < compound.getShapeAmount(); i++) {
-                    compound.getShape(i).rotateAroundLocation(loc, 0, 0.5, 0);
-                }
-
-                compound.getShape(2).rotate(0, 0.5, 0);
-            }
-
-            for (List<Entity> entities : structureBlocksList) {
-                loc.zero();
-
-                for (Entity e : entities) {
-                    loc.add(e.locX, e.locY, e.locZ);
-                }
-
-                loc.multiply(1D / entities.size());
-                vec.setX(loc.getX() - 0.5);
-                vec.setY(loc.getY());
-                vec.setZ(loc.getZ() - 0.5);
-                rot.apply(vec);
-
-                for (Entity e : entities) {
-                    e.setPosition(e.locX + vec.getX() + 0.5 - loc.getX(), e.locY, e.locZ + vec.getZ() + 0.5 - loc.getZ());
-                }
+            for (int i = 0; i < cubes.size(); i++) {
+                rotateStructure(i, 0.5);
             }
         }
 
@@ -225,6 +203,7 @@ public class SpecialAttack extends Attack {
             structureBlocksList.add(new ArrayList<>());
         }
 
+        cubeDestroyTask = null;
         deactivating = false;
         activating = false;
 
@@ -232,6 +211,8 @@ public class SpecialAttack extends Attack {
     }
 
     public void handleCubeDamage(Location l, double distance) {
+        if (cubeDestroyTask != null) return;
+
         ParticleShapeCompound cube = null;
 
         for (ParticleShapeCompound compound : cubes) {
@@ -247,14 +228,13 @@ public class SpecialAttack extends Attack {
         ParticleBlockBreak particle = (ParticleBlockBreak) cube.getShape(0).getParticle();
         ParticleShapeCompound finalCube = cube;
 
-        if (particle.getLocationToGo() != null) return;
-
         particle.setLocationToGo(cube.getLocations()[0]);
         cube.getShape(1).setParticle(particle);
         cube.getShape(2).stop();
 
-        new BukkitRunnable() {
+        cubeDestroyTask = new BukkitRunnable() {
 
+            private final int index = cubes.indexOf(finalCube);
             private int counter = 0;
 
             @Override
@@ -273,23 +253,32 @@ public class SpecialAttack extends Attack {
                 particle.setMaterialData(new MaterialData(randomMaterial));
 
                 if (counter == 25) {
-                    structureBlocksList.remove(cubes.indexOf(finalCube));
+                    structureBlocksList.remove(index);
                     cubes.remove(finalCube);
                     finalCube.stop();
                     world.createExplosion(finalCube.getClonedCenter().subtract(0, 3, 0), 5);
                     Main.getBossfight().handleDamage(6.25, true);
+                }
+
+                if (counter >= 25) {
+                    for (int i = 0; i < cubes.size(); i++) {
+                        int pos = index + i;
+
+                        if (pos >= cubes.size()) {
+                            pos -= cubes.size();
+                        }
+
+                        rotateStructure(pos, (((360D / (cubes.size() + 1)) / cubes.size()) * i) / 80);
+                    }
+                }
+
+                if (counter == 105) {
+                    cubeDestroyTask = null;
+
                     cancel();
                 }
             }
         }.runTaskTimer(Main.getInstance(), 0, 1);
-    }
-
-    public boolean isStarting() {
-        return counter < 200;
-    }
-
-    public boolean isActivated() {
-        return activating;
     }
 
     //as far as i can tell this is the best way to get falling blocks to not fall pre-1.10, its annoying and janky but oh well i guess
@@ -320,5 +309,42 @@ public class SpecialAttack extends Attack {
         block.getWorld().addEntity(block, CreatureSpawnEvent.SpawnReason.CUSTOM);
         block.getBukkitEntity().setMetadata("bossfight-entity", new FixedMetadataValue(Main.getInstance(), true));
         structureBlocksList.get(counter / 20).add(block);
+    }
+
+    private void rotateStructure(int pos, double amount) {
+        List<Entity> entities = structureBlocksList.get(pos);
+        ParticleShapeCompound compound = cubes.get(pos);
+
+        loc.zero().add(0.5, 0, 0.5);
+        rot.set(0, amount, 0);
+
+        for (int i = 0; i < compound.getShapeAmount(); i++) {
+            compound.getShape(i).rotateAroundLocation(loc, 0, amount, 0);
+        }
+
+        compound.getShape(2).rotate(0, amount, 0);
+        loc.zero();
+
+        for (Entity e : entities) {
+            loc.add(e.locX, e.locY, e.locZ);
+        }
+
+        loc.multiply(1D / entities.size());
+        vec.setX(loc.getX() - 0.5);
+        vec.setY(loc.getY());
+        vec.setZ(loc.getZ() - 0.5);
+        rot.apply(vec);
+
+        for (Entity e : entities) {
+            e.setPosition(e.locX + vec.getX() + 0.5 - loc.getX(), e.locY, e.locZ + vec.getZ() + 0.5 - loc.getZ());
+        }
+    }
+
+    public boolean isStarting() {
+        return counter < 200;
+    }
+
+    public boolean isActivated() {
+        return activating;
     }
 }
