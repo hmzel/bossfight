@@ -96,14 +96,14 @@ public abstract class Attack {
         Attacks.getSpecialAttack().handleCubeDamage(l, distance);
 
         if (Main.getBossfight().getEntity() == null) return;
-        if (l.distanceSquared(Main.getBossfight().getEntity().getBukkitEntity().getLocation().add(0, 1, 0)) > Math.pow(distance, 2)) return;
+        if (l.distanceSquared(Main.getBossfight().getEntity().getLocation().add(0, 1, 0)) > Math.pow(distance, 2)) return;
 
         Main.getBossfight().handleDamage(damage, false);
     }
 
     protected boolean shouldDeflect(Location l) {
         if (!Attacks.getSpecialAttack().isRunning()) return false;
-        if (l.distanceSquared(Main.getBossfight().getEntity().getBukkitEntity().getLocation().add(0, 1, 0)) > 9) return false;
+        if (l.distanceSquared(Main.getBossfight().getEntity().getLocation().add(0, 1, 0)) > 9) return false;
 
         world.playSound(l, Sound.ZOMBIE_METAL, 10, 1.25f);
 

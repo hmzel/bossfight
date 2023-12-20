@@ -5,7 +5,6 @@ import me.zelha.bossfight.listeners.AirJumpListener;
 import me.zelha.bossfight.listeners.DashListener;
 import me.zelha.bossfight.listeners.GeneralListener;
 import me.zelha.bossfight.listeners.ParryListener;
-import net.minecraft.server.v1_8_R3.EntityPlayer;
 import net.minecraft.server.v1_8_R3.PacketPlayOutEntityDestroy;
 import net.minecraft.server.v1_8_R3.PacketPlayOutPlayerInfo;
 import net.minecraft.server.v1_8_R3.PlayerConnection;
@@ -121,14 +120,14 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        EntityPlayer boss = getBossfight().getEntity();
+        Player boss = getBossfight().getEntity();
 
         if (boss != null) {
             for (Player p : Bukkit.getWorld("zelha").getPlayers()) {
                 PlayerConnection pc = ((CraftPlayer) p).getHandle().playerConnection;
 
-                pc.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, boss));
-                pc.sendPacket(new PacketPlayOutEntityDestroy(boss.getId()));
+                pc.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, ((CraftPlayer) boss).getHandle()));
+                pc.sendPacket(new PacketPlayOutEntityDestroy(boss.getEntityId()));
             }
         }
 

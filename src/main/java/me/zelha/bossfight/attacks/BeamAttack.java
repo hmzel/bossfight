@@ -11,7 +11,6 @@ import hm.zelha.particlesfx.util.Rotation;
 import hm.zelha.particlesfx.util.ShapeDisplayMechanic;
 import me.zelha.bossfight.Main;
 import me.zelha.bossfight.listeners.ParryListener;
-import net.minecraft.server.v1_8_R3.EntityPlayer;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -29,13 +28,13 @@ public class BeamAttack extends Attack {
         super(true);
 
         beam.addMechanic(ShapeDisplayMechanic.Phase.AFTER_DISPLAY, ((particle, current, addition, count) -> {
-            EntityPlayer boss = Main.getBossfight().getEntity();
+            Player boss = Main.getBossfight().getEntity();
 
             Attacks.getSpecialAttack().handleCubeDamage(current, 1.5);
 
             if (boss == null) return;
 
-            Location bossLoc = boss.getBukkitEntity().getLocation().add(0, 1, 0);
+            Location bossLoc = boss.getLocation().add(0, 1, 0);
 
             if (current.distanceSquared(bossLoc) > 2.25) return;
 

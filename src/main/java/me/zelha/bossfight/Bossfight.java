@@ -413,10 +413,9 @@ public class Bossfight extends BukkitRunnable {
     }
 
     public static void sendBossCreationPackets(Player player) {
-        EntityPlayer boss = Main.getBossfight().getEntity();
+        if (Main.getBossfight().getEntity() == null) return;
 
-        if (boss == null) return;
-
+        EntityPlayer boss = ((CraftPlayer) Main.getBossfight().getEntity()).getHandle();
         ScoreboardTeam team = new ScoreboardTeam(MinecraftServer.getServer().getWorld().getScoreboard(), "boss");
         PlayerConnection pc = ((CraftPlayer) player).getHandle().playerConnection;
 
@@ -488,8 +487,10 @@ public class Bossfight extends BukkitRunnable {
         }
     }
 
-    public EntityPlayer getEntity() {
-        return boss;
+    public Player getEntity() {
+        if (boss == null) return null;
+
+        return boss.getBukkitEntity();
     }
 
     public ParticleImage getEye() {
