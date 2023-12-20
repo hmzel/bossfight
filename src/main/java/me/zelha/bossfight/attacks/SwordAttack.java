@@ -33,7 +33,7 @@ public class SwordAttack extends Attack {
 
     @Override
     public boolean run(int ticks) {
-        if (Main.getBossfight().getEntity().getHealth() > 375) {
+        if (Main.getBossfight().getEntity().getHealth() > 300) {
             return false;
         }
 
