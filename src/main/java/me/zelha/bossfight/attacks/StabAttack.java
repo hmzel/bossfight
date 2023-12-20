@@ -5,6 +5,7 @@ import hm.zelha.particlesfx.particles.ParticleWitchMagic;
 import hm.zelha.particlesfx.shapers.ParticleCircle;
 import hm.zelha.particlesfx.shapers.ParticleImage;
 import hm.zelha.particlesfx.util.LocationSafe;
+import hm.zelha.particlesfx.util.ParticleSFX;
 import hm.zelha.particlesfx.util.Rotation;
 import me.zelha.bossfight.Main;
 import me.zelha.bossfight.Utils;
@@ -92,6 +93,12 @@ public class StabAttack extends Attack {
                     sword.setRotation(l.getPitch() - 90, l.getYaw(), 0);
 
                     parried = true;
+                }
+
+                if (shouldDeflect(loc, 3)) {
+                    double[] direction = ParticleSFX.getDirection(loc, Main.getBossfight().getEntity().getBukkitEntity().getLocation().add(0, 1, 0));
+
+                    sword.setRotation(direction[0], direction[1], 0);
                 }
 
                 if (counter <= 10) {
