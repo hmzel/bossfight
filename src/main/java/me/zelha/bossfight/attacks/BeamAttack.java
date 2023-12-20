@@ -11,6 +11,7 @@ import hm.zelha.particlesfx.util.Rotation;
 import hm.zelha.particlesfx.util.ShapeDisplayMechanic;
 import me.zelha.bossfight.Main;
 import me.zelha.bossfight.listeners.ParryListener;
+import net.minecraft.server.v1_8_R3.EntityPlayer;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -28,12 +29,22 @@ public class BeamAttack extends Attack {
         super(true);
 
         beam.addMechanic(ShapeDisplayMechanic.Phase.AFTER_DISPLAY, ((particle, current, addition, count) -> {
+            EntityPlayer boss = Main.getBossfight().getEntity();
+
             Attacks.getSpecialAttack().handleCubeDamage(current, 1.5);
 
-            if (Main.getBossfight().getEntity() == null) return;
-            if (current.distanceSquared(Main.getBossfight().getEntity().getBukkitEntity().getLocation().add(0, 1, 0)) > 2.25) return;
+            if (boss == null) return;
 
-            Main.getBossfight().handleDamage(5, false);
+            Location bossLoc = boss.getBukkitEntity().getLocation().add(0, 1, 0);
+
+            if (current.distanceSquared(bossLoc) > 2.25) return;
+
+            boolean didDamage = Main.getBossfight().handleDamage(5, false);
+
+            if (Attacks.getSpecialAttack().isRunning() && !didDamage) {
+                addition.zero().add(bossLoc.subtract(current).toVector()).normalize().multiply(-0.75);
+                beam.getLocation(1).zero().add(current).add(addition.clone().multiply(beam.getParticleFrequency() - count));
+            }
         }));
 
         beam.stop();
@@ -99,6 +110,7 @@ public class BeamAttack extends Attack {
                 }
 
                 if (counter == 25) {
+                    loc.zero().add(beam.getLocation(1));
                     beamParticle.setVelocity(null);
                     beamParticle.setCount(500);
                     beamParticle.display(loc);

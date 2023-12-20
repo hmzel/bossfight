@@ -80,7 +80,10 @@ public abstract class Attack {
         counter = 0;
     }
 
-    protected void damageNearby(Location l, double distance, double damage, @Nullable Location damageLocation) {
+    /**
+     * @return whether the boss was damaged
+     */
+    protected boolean damageNearby(Location l, double distance, double damage, @Nullable Location damageLocation) {
         for (Player p : world.getPlayers()) {
             if (l.distanceSquared(p.getLocation()) > Math.pow(distance, 2)) continue;
 
@@ -95,10 +98,10 @@ public abstract class Attack {
 
         Attacks.getSpecialAttack().handleCubeDamage(l, distance);
 
-        if (Main.getBossfight().getEntity() == null) return;
-        if (l.distanceSquared(Main.getBossfight().getEntity().getBukkitEntity().getLocation().add(0, 1, 0)) > Math.pow(distance, 2)) return;
+        if (Main.getBossfight().getEntity() == null) return false;
+        if (l.distanceSquared(Main.getBossfight().getEntity().getBukkitEntity().getLocation().add(0, 1, 0)) > Math.pow(distance, 2)) return false;
 
-        Main.getBossfight().handleDamage(damage, false);
+        return Main.getBossfight().handleDamage(damage, false);
     }
 
     protected Player getTarget() {

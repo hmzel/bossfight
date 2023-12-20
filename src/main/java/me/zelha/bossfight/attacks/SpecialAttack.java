@@ -212,6 +212,7 @@ public class SpecialAttack extends Attack {
 
     public void handleCubeDamage(Location l, double distance) {
         if (cubeDestroyTask != null) return;
+        if (counter <= 200) return;
 
         ParticleShapeCompound cube = null;
 

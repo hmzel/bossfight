@@ -433,8 +433,11 @@ public class Bossfight extends BukkitRunnable {
         }.runTaskLater(Main.getInstance(), 50);
     }
 
-    public void handleDamage(double damage, boolean bypassImmunity) {
-        if (!bypassImmunity && (lastHit + 500 > System.currentTimeMillis() || Attacks.getSpecialAttack().isRunning())) return;
+    /**
+     * @return whether the boss was damaged
+     */
+    public boolean handleDamage(double damage, boolean bypassImmunity) {
+        if (!bypassImmunity && (lastHit + 500 > System.currentTimeMillis() || Attacks.getSpecialAttack().isRunning())) return false;
 
         for (Player p : world.getPlayers()) {
             ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityStatus(boss, (byte) 2));
@@ -450,6 +453,8 @@ public class Bossfight extends BukkitRunnable {
         world.playSound(boss.getBukkitEntity().getLocation(), Sound.WITHER_IDLE, 5, 2);
 
         lastHit = System.currentTimeMillis();
+
+        return true;
     }
 
     private void reset() {
