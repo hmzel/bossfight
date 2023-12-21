@@ -28,7 +28,6 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -43,7 +42,7 @@ public class Bossfight extends BukkitRunnable {
     private final List<Location> modifiedDeathAnimLocs = new ArrayList<>();
     private final ParticleShapeCompound watcher = new ParticleShapeCompound();
     private final ParticleShapeCompound wings = new ParticleShapeCompound();
-    private final ParticleImage summoningCircle = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 27.2, 0.5), new File("plugins/summoningcircle.png"), 5, 5, 1000);
+    private final ParticleImage summoningCircle = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 27.2, 0.5), "https://raw.githubusercontent.com/hmzel/bossfight/master/images/summoningcircle.png", 5, 5, 1000);
     private final ParticleSphere sphere = (ParticleSphere) new ParticleSphere(new ParticleExplosion(10D), new LocationSafe(world, 0.5, 28, 0.5), 500, 500, 500, 4).setLimit(25).setLimitInverse(true).stop();
     private final ParticleLine dyingShape = (ParticleLine) new ParticleLine(new ParticleExplosionEmitter(), 100, new LocationSafe(world, 0.5, 36, -36.5), new LocationSafe(world, 0.5, 36, -36.5)).stop();
     private final Vector vec = new Vector();
@@ -64,9 +63,9 @@ public class Bossfight extends BukkitRunnable {
         Rotation rot = new Rotation();
 
         summoningCircle.rotate(180, 0, 0);
-        watcher.addShape(new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 33, 0.5), new File("plugins/outereye.png"), 9, 500));
-        watcher.addShape(new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 33, 0.5), new File("plugins/innereye.gif"), 3, 1.68, 500));
-        wings.addShape(new ParticleImage(new ParticleDustColored(), new LocationSafe(world, -3.25, 39.5, -36.6), new File("plugins/wing.png"), 3.15, 4, 500));
+        watcher.addShape(new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 33, 0.5), "https://raw.githubusercontent.com/hmzel/bossfight/master/images/outereye.png", 9, 500));
+        watcher.addShape(new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 33, 0.5), "https://raw.githubusercontent.com/hmzel/bossfight/master/images/innereye.gif", 3, 1.68, 500));
+        wings.addShape(new ParticleImage(new ParticleDustColored(), new LocationSafe(world, -3.25, 39.5, -36.6), "https://raw.githubusercontent.com/hmzel/bossfight/master/images/wing.png", 3.15, 4, 500));
         wings.addShape(wings.getShape(0).clone());
         wings.getShape(1).move(7.5, 0, 0);
         watcher.addPlayer(UUID.randomUUID());
@@ -370,7 +369,7 @@ public class Bossfight extends BukkitRunnable {
                     getEye().removeFrame(0);
                 }
 
-                getEye().addImage(new File("plugins/eyeportal.gif"));
+                getEye().addImage("https://raw.githubusercontent.com/hmzel/bossfight/master/images/eyeportal.gif");
                 getEye().setAxisRotation(-90, 0, 0);
                 getEye().removeMechanic(1);
                 getEye().removePlayer(0);

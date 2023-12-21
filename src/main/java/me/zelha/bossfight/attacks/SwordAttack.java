@@ -14,11 +14,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.io.File;
-
 public class SwordAttack extends Attack {
 
-    private final ParticleImage sword = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 43, -36.5), new File("plugins/sword.png"), 3, 300);
+    private final ParticleImage sword = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 43, -36.5), "https://raw.githubusercontent.com/hmzel/bossfight/master/images/sword.png", 3, 300);
     private final Location bossLoc = new Location(world, 0.5, 37, -36.5);
     private Player target = null;
     private double pitch = -46;

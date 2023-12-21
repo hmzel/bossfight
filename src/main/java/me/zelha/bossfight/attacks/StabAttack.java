@@ -17,8 +17,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.io.File;
-
 public class StabAttack extends Attack {
     protected StabAttack() {
         super(true);
@@ -39,7 +37,7 @@ public class StabAttack extends Attack {
 
         new BukkitRunnable() {
 
-            private final ParticleImage sword = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0, 0, 0), new File("plugins/swordempty.png"), 3, 100);
+            private final ParticleImage sword = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0, 0, 0), "https://raw.githubusercontent.com/hmzel/bossfight/master/images/swordempty.png", 3, 100);
             private final ParticleCircle circle = new ParticleCircle(new ParticleWitchMagic(), new LocationSafe(world, 0, 0, 0), 0.35, 0.35, 50);
             private final Location loc = new Location(world, 0, 0, 0);
             private final Rotation rot = new Rotation();

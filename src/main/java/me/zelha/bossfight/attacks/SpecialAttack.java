@@ -26,7 +26,6 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -37,7 +36,7 @@ import java.util.stream.Collectors;
 
 public class SpecialAttack extends Attack {
 
-    private final ParticleImage magicCircle = new ParticleImage(new ParticleDustColored(), new LocationSafe(Bukkit.getWorld("zelha"), 0.5, 200, 0.5), new File("plugins/magiccircle.png"), 1, 1000);
+    private final ParticleImage magicCircle = new ParticleImage(new ParticleDustColored(), new LocationSafe(Bukkit.getWorld("zelha"), 0.5, 200, 0.5), "https://raw.githubusercontent.com/hmzel/bossfight/master/images/magiccircle.png", 1, 1000);
     private final ParticleExplosion magicCircleParticle = new ParticleExplosion(1D);
     private final ParticleShapeCompound centerBeam = new ParticleShapeCompound();
     private final List<ParticleShapeCompound> cubes = new ArrayList<>();

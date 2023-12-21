@@ -17,7 +17,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.io.File;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class BeamAttack extends Attack {
@@ -55,7 +54,7 @@ public class BeamAttack extends Attack {
 
         new BukkitRunnable() {
 
-            private final ParticleImage magicCircle = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 63, 0.5), new File("plugins/summoningcircle.png"), 0.01, 500);
+            private final ParticleImage magicCircle = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0.5, 63, 0.5), "https://raw.githubusercontent.com/hmzel/bossfight/master/images/summoningcircle.png", 0.01, 500);
             private final TravellingParticle beamParticle = ((TravellingParticle) beam.getParticle());
             private final ThreadLocalRandom rng = ThreadLocalRandom.current();
             private final Location center = new Location(world, 0.5, 27, 0.5);

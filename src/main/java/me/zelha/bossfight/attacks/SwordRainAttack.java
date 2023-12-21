@@ -14,7 +14,6 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.io.File;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class SwordRainAttack extends Attack {
@@ -60,7 +59,7 @@ public class SwordRainAttack extends Attack {
 
         new BukkitRunnable() {
 
-            private final ParticleImage sword = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0, 0, 0), new File("plugins/goldsword.png"), 0.75, 25);
+            private final ParticleImage sword = new ParticleImage(new ParticleDustColored(), new LocationSafe(world, 0, 0, 0), "https://raw.githubusercontent.com/hmzel/bossfight/master/images/goldsword.png", 0.75, 25);
             private final ThreadLocalRandom rng = ThreadLocalRandom.current();
             private final Rotation rot = new Rotation();
             private final Vector vec = new Vector();
